@@ -1,28 +1,15 @@
-// pages/api/events/[userId].ts
-
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ObjectId } from "mongodb";
 
-interface EventResponse {
-  id: string;
-  name: string;
-  status: string;
-  date: string;
-  location: string;
-  imgUrl: string;
-}
-
 export async function POST(req: Request, res: Response) {
   try {
-    const session = await auth()
+    const session = await auth();
     if (!session) {
       return new Response("Unauthorized", { status: 403 });
     }
     console.log("Success");
 
-    // const json = await req.json();
-    // const reqBody = VenueSchema.parse(req.body);
     const userId = session.user.id;
 
     if (!userId || typeof userId !== "string") {
@@ -32,20 +19,6 @@ export async function POST(req: Request, res: Response) {
     const client = await db;
     const collection = client.db().collection("events");
 
-    // const events = await collection
-    //   .find({
-    //     userId: new ObjectId(userId),
-    //   })
-    //   .toArray();
-
-    // const formattedEvents: EventResponse[] = events.map((event) => ({
-    //   id: event._id.toString(),
-    //   name: event.eventName,
-    //   status: event.status,
-    //   date: formatDate(event.timings[0].date),
-    //   location: event.venueId ? event.venueId.toString() : "N/A", // You might want to fetch venue details separately
-    //   imgUrl: event.eventFlyer || "./placeholder.svg",
-    // }));
     const events = await collection
       .aggregate([
         {
