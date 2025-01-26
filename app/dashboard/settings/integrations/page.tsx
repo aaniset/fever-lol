@@ -1,6 +1,4 @@
-import { AccountForm } from "@/components/account-form";
 import { AppSidebar } from "@/components/app-sidebar";
-import { OnboardingForm } from "@/components/onboarding";
 import { PaymentForm } from "@/components/payment-account-form";
 import {
   Breadcrumb,
@@ -40,9 +38,8 @@ export default function SettingsPage() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <AccountForm />
           <PaymentForm />
-          <OnboardingForm />
+          
         </div>
       </SidebarInset>
     </SidebarProvider>

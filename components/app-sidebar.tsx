@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 
-// const navigationData = {
 //   navMain: [
 //     {
 //       title: "Dashboard",
@@ -238,7 +237,7 @@ const navigationData = {
     },
     {
       title: "Settings",
-      url: "/dashboard/settings",
+      url: "#",
       icon: Settings,
       items: [
         {
@@ -246,15 +245,7 @@ const navigationData = {
           url: "/dashboard/settings/general",
         },
         {
-          title: "Team",
-          url: "/dashboard/settings/team",
-        },
-        {
-          title: "Billing",
-          url: "/dashboard/settings/billing",
-        },
-        {
-          title: "Integrations",
+          title: "Payment Gateway",
           url: "/dashboard/settings/integrations",
         },
       ],
@@ -278,7 +269,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
