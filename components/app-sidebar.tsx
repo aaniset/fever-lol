@@ -10,6 +10,8 @@ import {
   BarChart3,
   HelpCircle,
   Bell,
+  MapPin,
+  BadgePercent,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 
@@ -27,6 +29,109 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 
+// const navigationData = {
+//   navMain: [
+//     {
+//       title: "Dashboard",
+//       url: "/dashboard",
+//       icon: LayoutDashboard,
+//       isActive: true,
+//     },
+//     {
+//       title: "Events",
+//       url: "/dashboard/events",
+//       icon: Calendar,
+//       items: [
+//         {
+//           title: "All Events",
+//           url: "/dashboard/events",
+//         },
+//         {
+//           title: "Create Event",
+//           url: "/dashboard/events/create",
+//         },
+//         {
+//           title: "Categories",
+//           url: "/dashboard/events/categories",
+//         },
+//       ],
+//     },
+//     {
+//       title: "Orders",
+//       url: "/dashboard/orders",
+//       icon: TicketIcon,
+//       items: [
+//         {
+//           title: "All Orders",
+//           url: "/dashboard/orders",
+//         },
+//         {
+//           title: "Pending",
+//           url: "/dashboard/orders/pending",
+//         },
+//         {
+//           title: "Completed",
+//           url: "/dashboard/orders/completed",
+//         },
+//       ],
+//     },
+//     {
+//       title: "Attendees",
+//       url: "/dashboard/attendees",
+//       icon: Store,
+//       items: [
+//         {
+//           title: "Quick Sale",
+//           url: "/dashboard/attendees/sale",
+//         },
+//         {
+//           title: "Scan Tickets",
+//           url: "/dashboard/attendees/scan",
+//         },
+//       ],
+//     },
+//     {
+//       title: "Analytics",
+//       url: "/dashboard/analytics",
+//       icon: BarChart3,
+//     },
+//     {
+//       title: "Settings",
+//       url: "/dashboard/settings",
+//       icon: Settings,
+//       items: [
+//         {
+//           title: "General",
+//           url: "/dashboard/settings/general",
+//         },
+//         {
+//           title: "Team",
+//           url: "/dashboard/settings/team",
+//         },
+//         {
+//           title: "Billing",
+//           url: "/dashboard/settings/billing",
+//         },
+//         {
+//           title: "Integrations",
+//           url: "/dashboard/settings/integrations",
+//         },
+//       ],
+//     },
+//   ],
+//   navSecondary: [
+//     {
+//       title: "Support",
+//       url: "/dashboard/support",
+//       icon: HelpCircle,
+//     },
+//     {
+//       title: "Notifications",
+//       url: "/dashboard/notifications",
+//       icon: Bell,
+//     },
+//   ],
+// };
 const navigationData = {
   navMain: [
     {
@@ -55,6 +160,25 @@ const navigationData = {
       ],
     },
     {
+      title: "Venues",
+      url: "/dashboard/venues",
+      icon: MapPin,
+      items: [
+        {
+          title: "All Venues",
+          url: "/dashboard/venues",
+        },
+        {
+          title: "Add Venue",
+          url: "/dashboard/venues/create",
+        },
+        {
+          title: "Venue Settings",
+          url: "/dashboard/venues/settings",
+        },
+      ],
+    },
+    {
       title: "Orders",
       url: "/dashboard/orders",
       icon: TicketIcon,
@@ -74,17 +198,36 @@ const navigationData = {
       ],
     },
     {
-      title: "Box Office",
-      url: "/dashboard/box-office",
+      title: "Attendees",
+      url: "/dashboard/attendees",
       icon: Store,
       items: [
         {
           title: "Quick Sale",
-          url: "/dashboard/box-office/sale",
+          url: "/dashboard/attendees/sale",
         },
         {
           title: "Scan Tickets",
-          url: "/dashboard/box-office/scan",
+          url: "/dashboard/attendees/scan",
+        },
+      ],
+    },
+    {
+      title: "Discount Codes",
+      url: "/dashboard/discounts",
+      icon: BadgePercent,
+      items: [
+        {
+          title: "All Discounts",
+          url: "/dashboard/discounts",
+        },
+        {
+          title: "Create Discount",
+          url: "/dashboard/discounts/create",
+        },
+        {
+          title: "Discount Analytics",
+          url: "/dashboard/discounts/analytics",
         },
       ],
     },
