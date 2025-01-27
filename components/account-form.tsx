@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import axios from "axios";
+import { useDebouncedCallback } from "use-debounce";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,70 +26,161 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
+// Simplified validation schema
+// const accountFormSchema = z.object({
+//   firstName: z.string().min(2, "First name must be at least 2 characters"),
+//   lastName: z.string().min(2, "Last name must be at least 2 characters"),
+//   email: z.string().email("Please enter a valid email address"),
+//   phone: z
+//     .string()
+//     .regex(/^\d{10,15}$/, "Phone number must be between 10-15 digits")
+//     .optional()
+//     .or(z.literal("")),
+//   orgName: z.string().min(1, "Organization name is required"),
+//   orgDescription: z.string().min(1, "Organization description is required"),
+//   orgUrl: z
+//     .string()
+//     .min(1, "Organization URL is required")
+//     .regex(
+//       /^[a-zA-Z0-9-]+$/,
+//       "URL can only contain letters, numbers, and hyphens"
+//     ),
+//   ctaUrl: z.string().url("Please enter a valid URL"),
+// });
+// Modified validation schema to make all fields optional
 const accountFormSchema = z.object({
-  firstName: z
-    .string()
-    .min(2, { message: "First name must be at least 2 characters." }),
-  lastName: z
-    .string()
-    .min(2, { message: "Last name must be at least 2 characters." }),
+  firstName: z.string().optional().or(z.literal("")),
+  lastName: z.string().optional().or(z.literal("")),
   email: z
-    .string({
-      required_error: "Please enter your email address.",
-    })
-    .email(),
-
+    .string()
+    .email("Please enter a valid email address")
+    .optional()
+    .or(z.literal("")),
   phone: z
     .string()
-    .regex(/^[0-9]+$/, "Phone number must contain only digits.")
-    .min(10, "Phone number must be at least 10 digits.")
-    .max(15, "Phone number must not be longer than 15 digits."),
-  organizationDescription: z.string(),
-  organizationName: z.string(),
-  ctaUrl: z.string(),
+    .regex(/^\d{10,15}$/, "Phone number must be between 10-15 digits")
+    .optional()
+    .or(z.literal("")),
+  orgName: z.string().optional().or(z.literal("")),
+  orgDescription: z.string().optional().or(z.literal("")),
+  orgUrl: z
+    .string()
+    .regex(
+      /^[a-zA-Z0-9-]+$/,
+      "URL can only contain letters, numbers, and hyphens"
+    )
+    .optional()
+    .or(z.literal("")),
+  ctaUrl: z
+    .string()
+    .url("Please enter a valid URL")
+    .optional()
+    .or(z.literal("")),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
-const defaultValues: Partial<AccountFormValues> = {};
-
 export function AccountForm() {
+  const [urlAvailable, setUrlAvailable] = useState<boolean | null>(null);
+  const [checkingUrl, setCheckingUrl] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [initialOrgUrl, setInitialOrgUrl] = useState<string>("");
+
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
-    defaultValues,
-    mode: "onChange",
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      orgName: "",
+      orgDescription: "",
+      orgUrl: "",
+      ctaUrl: "",
+    },
   });
 
-  function onSubmit(data: AccountFormValues) {
-    // toast({
-    //   title: "You submitted the following values:",
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // });
-  }
+  const checkUrlAvailability = useDebouncedCallback(async (url: string) => {
+    if (!url || url === initialOrgUrl) {
+      setUrlAvailable(null);
+      return;
+    }
+
+    setCheckingUrl(true);
+    try {
+      const response = await axios.get(
+        `/api/check-url?orgUrl=${encodeURIComponent(url)}`
+      );
+      setUrlAvailable(response.data.available);
+    } catch (error) {
+      console.error("Error checking URL availability:", error);
+      setUrlAvailable(null);
+    } finally {
+      setCheckingUrl(false);
+    }
+  }, 500);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/profile");
+        if (response.data) {
+          form.reset(response.data);
+          setInitialOrgUrl(response.data.orgUrl || "");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setError("Failed to load user data. Please try again later.");
+      }
+    };
+
+    fetchUserData();
+  }, [form]);
+
+  const onSubmit = async (data: AccountFormValues) => {
+    const orgUrlChanged = data.orgUrl !== initialOrgUrl;
+    if (orgUrlChanged && !urlAvailable && data.orgUrl) {
+      toast.error("Please choose a different organization URL");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await axios.post("/api/profile", data);
+      if (response.status === 200) {
+        toast.success("Profile updated successfully");
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to update profile";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <Card x-chunk="dashboard-04-chunk-1">
+    <Card>
       <CardHeader>
         <CardTitle>Account Details</CardTitle>
         <CardDescription>Update your account details below.</CardDescription>
       </CardHeader>
       <Separator />
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -130,7 +223,11 @@ export function AccountForm() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="you@example.com" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="you@example.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,9 +238,9 @@ export function AccountForm() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone</FormLabel>
+                    <FormLabel>Phone (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="1234567890" {...field} />
+                      <Input type="tel" placeholder="1234567890" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,7 +250,7 @@ export function AccountForm() {
 
             <FormField
               control={form.control}
-              name="organizationName"
+              name="orgName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Name</FormLabel>
@@ -167,7 +264,7 @@ export function AccountForm() {
 
             <FormField
               control={form.control}
-              name="organizationDescription"
+              name="orgDescription"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Organization Description</FormLabel>
@@ -185,35 +282,87 @@ export function AccountForm() {
 
             <FormField
               control={form.control}
-              name="ctaUrl"
+              name="orgUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Call to Action URL</FormLabel>
+                  <FormLabel>Organization URL</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://www.instagram.com/your_account"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        placeholder="event-url"
+                        className={`${
+                          field.value !== initialOrgUrl && urlAvailable === true
+                            ? "border-green-500"
+                            : field.value !== initialOrgUrl && urlAvailable === false
+                            ? "border-red-500"
+                            : ""
+                        }`}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          checkUrlAvailability(e.target.value);
+                        }}
+                      />
+                      {checkingUrl && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <div className="animate-spin h-4 w-4 border-2 border-gray-500 rounded-full border-t-transparent" />
+                        </div>
+                      )}
+                    </div>
                   </FormControl>
+                  {field.value !== initialOrgUrl && urlAvailable === false && (
+                    <p className="text-sm text-red-500">
+                      This URL is already taken
+                    </p>
+                  )}
+                  {field.value !== initialOrgUrl && urlAvailable === true && (
+                    <p className="text-sm text-green-500">URL is available</p>
+                  )}
                   <FormDescription>
-                    Enter a URL for visitors to follow your organization (e.g.,
-                    Instagram, Twitter, website)
+                    Preview: www.fever.lol/orgs/{field.value}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* <Button type="submit" className="w-full">
-              Submit
-            </Button> */}
+            <FormField
+              control={form.control}
+              name="ctaUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Call to Action URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://www.instagram.com/your_account"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Enter a URL for visitors to follow your organization
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              disabled={isSubmitting || (form.getValues("orgUrl") !== initialOrgUrl && urlAvailable === false)}
+            >
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+                  Saving...
+                </>
+              ) : (
+                "Submit"
+              )}
+            </Button>
           </form>
         </Form>
       </CardContent>
-
-      <CardFooter className="border-t px-6 py-4">
-        <Button type="submit">Submit</Button>
-      </CardFooter>
     </Card>
   );
 }

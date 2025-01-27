@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -19,11 +19,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@radix-ui/react-dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -32,46 +30,133 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const paymentFormSchema = z.object({
-  accountHolderName: z
-    .string()
-    .min(2, { message: "Account holder name must be at least 2 characters." }),
   paymentGateway: z
     .string()
     .nonempty({ message: "Please select a payment gateway" }),
   razorpayKeyId: z
     .string()
     .min(20, { message: "Please enter a valid Razorpay Key ID" })
-    .optional(),
+    .optional()
+    .nullable(),
   razorpayKeySecret: z
     .string()
     .min(20, { message: "Please enter a valid Razorpay Key Secret" })
-    .optional(),
+    .optional()
+    .nullable(),
   stripePublishableKey: z
     .string()
     .min(20, { message: "Please enter a valid Stripe Publishable Key" })
-    .optional(),
+    .optional()
+    .nullable(),
   stripeSecretKey: z
     .string()
     .min(20, { message: "Please enter a valid Stripe Secret Key" })
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 type PaymentFormValues = z.infer<typeof paymentFormSchema>;
 
 export function PaymentForm() {
   const [gateway, setGateway] = useState<"razorpay" | "stripe" | "">("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showRazorpaySecret, setShowRazorpaySecret] = useState(false);
+  const [showStripeSecret, setShowStripeSecret] = useState(false);
+
   const form = useForm<PaymentFormValues>({
     resolver: zodResolver(paymentFormSchema),
+    defaultValues: {
+      paymentGateway: "",
+      razorpayKeyId: null,
+      razorpayKeySecret: null,
+      stripePublishableKey: null,
+      stripeSecretKey: null,
+    },
   });
 
-  function onSubmit(data: PaymentFormValues) {
-    toast.success("Payment gateway configuration saved", {
-      description:
-        "Your payment gateway settings have been updated successfully.",
-      duration: 3000,
-    });
+  useEffect(() => {
+    const fetchPaymentConfig = async () => {
+      try {
+        const response = await fetch("/api/payment-config");
+        if (!response.ok) throw new Error("Failed to fetch configuration");
+
+        const data = await response.json();
+        if (data) {
+          // Transform empty strings to null
+          const formattedData = {
+            ...data,
+            razorpayKeyId: data.razorpayKeyId || null,
+            razorpayKeySecret: data.razorpayKeySecret || null,
+            stripePublishableKey: data.stripePublishableKey || null,
+            stripeSecretKey: data.stripeSecretKey || null,
+          };
+          form.reset(formattedData);
+          setGateway(data.paymentGateway || "");
+        }
+      } catch (error) {
+        toast.error("Failed to load configuration");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPaymentConfig();
+  }, [form]);
+
+  const onSubmit = async (data: PaymentFormValues) => {
+    setIsSubmitting(true);
+    try {
+      // Filter out null values and prepare the payload
+      const payload = {
+        paymentGateway: data.paymentGateway,
+        ...(data.paymentGateway === "razorpay" && {
+          razorpayKeyId: data.razorpayKeyId || "",
+          razorpayKeySecret: data.razorpayKeySecret || "",
+        }),
+        ...(data.paymentGateway === "stripe" && {
+          stripePublishableKey: data.stripePublishableKey || "",
+          stripeSecretKey: data.stripeSecretKey || "",
+        }),
+      };
+
+      const response = await fetch("/api/payment-config", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save configuration");
+      }
+
+      toast.success("Payment gateway configuration saved successfully");
+    } catch (error) {
+      console.error("Submit error:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save configuration"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -79,11 +164,9 @@ export function PaymentForm() {
       <CardHeader>
         <CardTitle>Payment Gateway Configuration</CardTitle>
         <CardDescription>
-          Configure your payment gateway settings for accepting payments. Make
-          sure to keep your API keys secure.
+          Configure your payment gateway settings for accepting payments.
         </CardDescription>
       </CardHeader>
-      <Separator />
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -100,6 +183,7 @@ export function PaymentForm() {
                       setGateway(value as "razorpay" | "stripe");
                       field.onChange(value);
                     }}
+                    value={field.value}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select payment gateway" />
@@ -109,9 +193,6 @@ export function PaymentForm() {
                       <SelectItem value="stripe">Stripe (USA)</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Choose your preferred payment gateway based on your region.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -131,11 +212,12 @@ export function PaymentForm() {
                         <Input
                           placeholder="rzp_live_xxxxxxxxxxxxxx"
                           {...field}
+                          value={field.value || ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value || null)
+                          }
                         />
                       </FormControl>
-                      <FormDescription>
-                        Enter your Razorpay Key ID from your dashboard.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -149,15 +231,29 @@ export function PaymentForm() {
                         Razorpay Key Secret
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Enter your Razorpay Key Secret"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showRazorpaySecret ? "text" : "password"}
+                            placeholder="Enter your Razorpay Key Secret"
+                            {...field}
+                            value={field.value || ""}
+                            onChange={(e) =>
+                              field.onChange(e.target.value || null)
+                            }
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRazorpaySecret(!showRazorpaySecret)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                          >
+                            {showRazorpaySecret ? (
+                              <EyeOff className="h-4 w-4 text-gray-500" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-500" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
-                      <FormDescription>
-                        Your Razorpay Key Secret will be encrypted.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -179,11 +275,12 @@ export function PaymentForm() {
                         <Input
                           placeholder="pk_live_xxxxxxxxxxxxxx"
                           {...field}
+                          value={field.value || ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.value || null)
+                          }
                         />
                       </FormControl>
-                      <FormDescription>
-                        Enter your Stripe Publishable Key from your dashboard.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -197,30 +294,49 @@ export function PaymentForm() {
                         Stripe Secret Key
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="Enter your Stripe Secret Key"
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            type={showStripeSecret ? "text" : "password"}
+                            placeholder="Enter your Stripe Secret Key"
+                            {...field}
+                            value={field.value || ""}
+                            onChange={(e) =>
+                              field.onChange(e.target.value || null)
+                            }
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowStripeSecret(!showStripeSecret)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2"
+                          >
+                            {showStripeSecret ? (
+                              <EyeOff className="h-4 w-4 text-gray-500" />
+                            ) : (
+                              <Eye className="h-4 w-4 text-gray-500" />
+                            )}
+                          </button>
+                        </div>
                       </FormControl>
-                      <FormDescription>
-                        Your Stripe Secret Key will be encrypted.
-                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
             )}
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+                  Saving...
+                </>
+              ) : (
+                "Save Configuration"
+              )}
+            </Button>
           </form>
         </Form>
       </CardContent>
-
-      <CardFooter className="border-t px-6 py-4">
-        <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
-          Save Configuration
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
