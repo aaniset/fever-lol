@@ -253,20 +253,6 @@ export function OnboardingForm() {
                     required
                   />
                 </div>
-                {/* <div className="grid gap-2">
-                  <Label htmlFor="orgUrl">Organization URL</Label>
-                  <Input
-                    id="orgUrl"
-                    name="orgUrl"
-                    placeholder="event-url"
-                    value={formData.orgUrl}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <div className="text-sm text-muted-foreground">
-                    Preview: www.fever.lol/orgs/{formData.orgUrl}
-                  </div>
-                </div> */}
                 <div className="grid gap-2">
                   <Label htmlFor="orgUrl">Organization URL</Label>
                   <div className="relative">
