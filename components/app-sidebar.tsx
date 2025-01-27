@@ -237,7 +237,7 @@ const navigationData = {
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: Settings,
       items: [
         {

@@ -65,7 +65,7 @@ export async function POST(req: Request, res: Response) {
   }
 }
 
-function formatDate(date: Date): string {
+export function formatDate(date: Date): string {
   const options: Intl.DateTimeFormatOptions = {
     day: "numeric",
     month: "long",
