@@ -211,30 +211,30 @@ const navigationData = {
         },
       ],
     },
-    {
-      title: "Discount Codes",
-      url: "/dashboard/discounts",
-      icon: BadgePercent,
-      items: [
-        {
-          title: "All Discounts",
-          url: "/dashboard/discounts",
-        },
-        {
-          title: "Create Discount",
-          url: "/dashboard/discounts/create",
-        },
-        {
-          title: "Discount Analytics",
-          url: "/dashboard/discounts/analytics",
-        },
-      ],
-    },
-    {
-      title: "Analytics",
-      url: "/dashboard/analytics",
-      icon: BarChart3,
-    },
+    // {
+    //   title: "Discount Codes",
+    //   url: "/dashboard/discounts",
+    //   icon: BadgePercent,
+    //   items: [
+    //     {
+    //       title: "All Discounts",
+    //       url: "/dashboard/discounts",
+    //     },
+    //     {
+    //       title: "Create Discount",
+    //       url: "/dashboard/discounts/create",
+    //     },
+    //     {
+    //       title: "Discount Analytics",
+    //       url: "/dashboard/discounts/analytics",
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: "Analytics",
+    //   url: "/dashboard/analytics",
+    //   icon: BarChart3,
+    // },
     {
       title: "Settings",
       url: "/dashboard/settings",

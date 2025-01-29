@@ -31,28 +31,6 @@ import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Simplified validation schema
-// const accountFormSchema = z.object({
-//   firstName: z.string().min(2, "First name must be at least 2 characters"),
-//   lastName: z.string().min(2, "Last name must be at least 2 characters"),
-//   email: z.string().email("Please enter a valid email address"),
-//   phone: z
-//     .string()
-//     .regex(/^\d{10,15}$/, "Phone number must be between 10-15 digits")
-//     .optional()
-//     .or(z.literal("")),
-//   orgName: z.string().min(1, "Organization name is required"),
-//   orgDescription: z.string().min(1, "Organization description is required"),
-//   orgUrl: z
-//     .string()
-//     .min(1, "Organization URL is required")
-//     .regex(
-//       /^[a-zA-Z0-9-]+$/,
-//       "URL can only contain letters, numbers, and hyphens"
-//     ),
-//   ctaUrl: z.string().url("Please enter a valid URL"),
-// });
-// Modified validation schema to make all fields optional
 const accountFormSchema = z.object({
   firstName: z.string().optional().or(z.literal("")),
   lastName: z.string().optional().or(z.literal("")),
@@ -294,7 +272,8 @@ export function AccountForm() {
                         className={`${
                           field.value !== initialOrgUrl && urlAvailable === true
                             ? "border-green-500"
-                            : field.value !== initialOrgUrl && urlAvailable === false
+                            : field.value !== initialOrgUrl &&
+                              urlAvailable === false
                             ? "border-red-500"
                             : ""
                         }`}
@@ -349,7 +328,11 @@ export function AccountForm() {
 
             <Button
               type="submit"
-              disabled={isSubmitting || (form.getValues("orgUrl") !== initialOrgUrl && urlAvailable === false)}
+              disabled={
+                isSubmitting ||
+                (form.getValues("orgUrl") !== initialOrgUrl &&
+                  urlAvailable === false)
+              }
             >
               {isSubmitting ? (
                 <>

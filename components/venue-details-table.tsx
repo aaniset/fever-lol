@@ -1,10 +1,9 @@
 "use client";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { VenueCard } from "@/components/venue-card";
 import { Input } from "@/components/ui/input";
-
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export interface Venue {
   _id: string;
   venueName: string;
@@ -83,16 +82,27 @@ export function VenuesTable() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-      <div className="flex items-center">
-        <Input
-          placeholder="Filter Venues..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-8 mx-4 w-[150px] lg:w-[250px]"
-        />
-      </div>
-      <VenueCard venues={filteredVenues} setVenues={setVenues} />
+    <div className="flex-1 space-y-4 p-4 md:p-8">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-semibold">Venues</CardTitle>
+            <div className="flex items-center space-x-2">
+              <Input
+                placeholder="Search venues..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-9 w-[150px] lg:w-[250px]"
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="space-y-4">
+            <VenueCard venues={filteredVenues} setVenues={setVenues} />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

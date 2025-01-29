@@ -2,7 +2,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { PlusCircle, MoreHorizontal } from "lucide-react";
+import { PlusCircle, MoreHorizontal, Loader2 } from "lucide-react";
 import axios from "axios";
 import { useQueryState } from "nuqs";
 
@@ -22,15 +22,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
@@ -48,7 +50,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -56,6 +58,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import React from "react";
 interface Venue {
   _id: string;
   venueName: string;
@@ -87,7 +90,7 @@ interface StateOptions {
 }
 
 // Add state options data
-const stateOptions: StateOptions = {
+export const stateOptions: StateOptions = {
   US: [
     { value: "AL", label: "Alabama" },
     { value: "AK", label: "Alaska" },
@@ -173,7 +176,7 @@ const stateOptions: StateOptions = {
 };
 
 // Add timezone options data
-const timezoneOptions: StateOptions = {
+export const timezoneOptions: StateOptions = {
   US: [
     { value: "America/New_York", label: "Eastern Time (ET)" },
     { value: "America/Chicago", label: "Central Time (CT)" },
@@ -198,6 +201,7 @@ export const VenueCard = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [editingVenueId, setEditingVenueId] = useQueryState("editVenue");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState<CreateVenueDto>({
     venueName: "",
@@ -264,21 +268,27 @@ export const VenueCard = ({
   };
   const createVenue = async (venueData: CreateVenueDto) => {
     try {
+      setIsLoading(true);
       const response = await axios.post<Venue>("/api/venues", venueData);
       return response.data;
     } catch (error) {
       console.error("Error creating venue:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const updateVenue = async (id: string, venueData: CreateVenueDto) => {
     try {
+      setIsLoading(true);
       const response = await axios.put<Venue>(`/api/venues/${id}`, venueData);
       return response.data;
     } catch (error) {
       console.error("Error updating venue:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
   const validateForm = (): boolean => {
@@ -375,7 +385,8 @@ export const VenueCard = ({
               Manage your venues and view their details.
             </CardDescription>
           </div>
-          <Dialog
+
+          <Drawer
             open={isDialogOpen}
             onOpenChange={(open) => {
               if (!open) {
@@ -383,7 +394,7 @@ export const VenueCard = ({
               }
             }}
           >
-            <DialogTrigger asChild>
+            <DrawerTrigger asChild>
               <Button
                 size="sm"
                 className="ml-auto gap-1"
@@ -394,152 +405,179 @@ export const VenueCard = ({
                   Add Venue
                 </span>
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <form onSubmit={handleSubmit}>
-                <DialogHeader>
-                  <DialogTitle>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div className="mx-auto w-full max-w-sm">
+                <DrawerHeader>
+                  <DrawerTitle>
                     {editingVenueId ? "Edit Venue" : "Add New Venue"}
-                  </DialogTitle>
-                  <DialogDescription>
+                  </DrawerTitle>
+                  <DrawerDescription>
                     {editingVenueId
                       ? "Edit venue details below."
                       : "Create a new venue by filling out the details below."}
-                  </DialogDescription>
-                </DialogHeader>
-                {formError && (
-                  <p className="text-red-500 text-sm mt-2">{formError}</p>
-                )}
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="venueName">Venue Name</Label>
-                    <Input
-                      id="venueName"
-                      value={formData.venueName}
-                      onChange={handleInputChange}
-                      placeholder="Venue Name"
-                      required
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Select
-                      value={formData.country}
-                      onValueChange={(value) =>
-                        handleSelectChange("country", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a country" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="US">United States</SelectItem>
-                        <SelectItem value="IN">India</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      placeholder="123 Main St"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="state">State</Label>
-                      <Select
-                        value={formData.state}
-                        onValueChange={(value) =>
-                          handleSelectChange("state", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {stateOptions[formData.country]?.map((state) => (
-                            <SelectItem key={state.value} value={state.value}>
-                              {state.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        placeholder="City"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="timeZone">Time Zone</Label>
-                      <Select
-                        value={formData.timeZone}
-                        onValueChange={(value) =>
-                          handleSelectChange("timeZone", value)
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select timezone" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {timezoneOptions[formData.country]?.map(
-                            (timezone) => (
-                              <SelectItem
-                                key={timezone.value}
-                                value={timezone.value}
-                              >
-                                {timezone.label}
-                              </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Label htmlFor="capacity">Capacity</Label>
-                      <Input
-                        id="capacity"
-                        type="number"
-                        min="1"
-                        value={formData.capacity}
-                        onChange={handleInputChange}
-                        placeholder="1000"
-                        required
-                      />
+                  </DrawerDescription>
+                </DrawerHeader>
+
+                <form onSubmit={handleSubmit}>
+                  {formError && (
+                    <p className="text-red-500 text-sm mt-2">{formError}</p>
+                  )}
+
+                  <div className="p-4 pb-0">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="venueName">Venue Name</Label>
+                        <Input
+                          id="venueName"
+                          value={formData.venueName}
+                          onChange={handleInputChange}
+                          placeholder="e.g., Conference Center, Concert Hall"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="country">Country</Label>
+                        <Select
+                          value={formData.country}
+                          onValueChange={(value) =>
+                            handleSelectChange("country", value)
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select country" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="US">United States</SelectItem>
+                            <SelectItem value="IN">India</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="state">State</Label>
+                          <Select
+                            value={formData.state}
+                            onValueChange={(value) =>
+                              handleSelectChange("state", value)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select state" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {stateOptions[formData.country]?.map((state) => (
+                                <SelectItem
+                                  key={state.value}
+                                  value={state.value}
+                                >
+                                  {state.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <Input
+                            id="city"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                            placeholder="City"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="timeZone">Time Zone</Label>
+                        <Select
+                          value={formData.timeZone}
+                          onValueChange={(value) =>
+                            handleSelectChange("timeZone", value)
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select timezone" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {timezoneOptions[formData.country]?.map(
+                              (timezone) => (
+                                <SelectItem
+                                  key={timezone.value}
+                                  value={timezone.value}
+                                >
+                                  {timezone.label}
+                                </SelectItem>
+                              )
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Street Address</Label>
+                        <Input
+                          id="address"
+                          value={formData.address}
+                          onChange={handleInputChange}
+                          placeholder="123 Main St"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-4">
+                        <Label>Venue Capacity</Label>
+                        <Slider
+                          onValueChange={(value) =>
+                            setFormData({ ...formData, capacity: value[0] })
+                          }
+                          value={[formData.capacity]}
+                          max={10000}
+                          step={50}
+                          className="py-4"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>Current: {formData.capacity} people</span>
+                          <span>Max: 10,000</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="mapsUrl">Google Maps URL</Label>
+                        <Input
+                          id="mapsUrl"
+                          type="url"
+                          value={formData.mapsUrl}
+                          onChange={handleInputChange}
+                          placeholder="https://maps.google.com/..."
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="mapsUrl">Maps URL</Label>
-                    <Input
-                      id="mapsUrl"
-                      type="url"
-                      value={formData.mapsUrl}
-                      onChange={handleInputChange}
-                      placeholder="https://maps.google.com/..."
-                      required
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit">
-                    {editingVenueId ? "Update Venue" : "Create Venue"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <DrawerFooter>
+                    <Button type="submit" disabled={isLoading}>
+                      {isLoading && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      {isLoading
+                        ? "Saving..."
+                        : editingVenueId
+                        ? "Update Venue"
+                        : "Create Venue"}
+                    </Button>
+                    <DrawerClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </form>
+              </div>
+            </DrawerContent>
+          </Drawer>
         </CardHeader>
         <CardContent>
           {venues.length === 0 ? (

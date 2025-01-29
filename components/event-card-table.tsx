@@ -1,51 +1,17 @@
 "use client";
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import {
-  PlusCircle,
-  MapPin,
-  MoreHorizontal,
-  ChevronRight,
-  ChevronLeft,
-  Calendar as CalendarIcon,
-  ChevronsLeft,
-  ChevronsRight,
-  Loader2,
-  Tag,
-  CalendarX,
-  ShoppingCart,
-  Pencil,
-  MoreVertical,
-  Users,
-} from "lucide-react";
-
-import { Calendar } from "@/components/ui/calendar";
-import { addDays, format } from "date-fns";
-import { DateRange } from "react-day-picker";
-import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { format } from "date-fns";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
 } from "@/components/ui/card";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -53,7 +19,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios from "axios";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Loader2,
+  MapPin,
+  MoreHorizontal,
+  PlusCircle,
+  Tag,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface Timing {
@@ -82,210 +66,6 @@ interface Event {
   venue: Venue | null;
   timings: Timing[];
   ticketVariants: TicketVariant[];
-}
-export default function EventsComponent() {
-  const [events, setEvents] = useState([]);
-  const [filteredEvents, setFilteredEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2024, 0, 20),
-    to: addDays(new Date(2025, 0, 20), 20),
-  });
-
-  const [selectedTab, setSelectedTab] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.post("/api/events");
-        setEvents(response.data);
-      } catch (error) {
-        console.error("Error fetching events:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEvents();
-  }, []);
-
-  // useEffect(() => {
-  //   const filterEvents = () => {
-  //     const currentDate = new Date();
-
-  //     const filtered = events.filter((event: any) => {
-  //       const earliestDate = event.timings?.length
-  //         ? new Date(Math.min(...event.timings.map((t) => new Date(t.date))))[1]
-  //         : null;
-
-  //       const eventValuesString = JSON.stringify(event).toLowerCase();
-  //       const matchesSearch = eventValuesString.includes(
-  //         searchQuery.toLowerCase()
-  //       );
-
-  //       const matchesTab = (() => {
-  //         switch (selectedTab) {
-  //           case "all":
-  //             return true;
-  //           case "draft":
-  //             return event.status === "draft" || !event.status;
-  //           case "active":
-  //             return event.status === "active";
-  //           case "completed":
-  //             return event.status === "completed";
-  //           default:
-  //             return false;
-  //         }
-  //       })();
-
-  //       const matchesDateRange =
-  //         date?.from && date?.to && earliestDate
-  //           ? earliestDate >= date.from && earliestDate <= date.to[1]
-  //           : true;
-
-  //       return matchesTab && matchesSearch && matchesDateRange;
-  //     });
-
-  //     setFilteredEvents(filtered);
-  //   };
-
-  //   filterEvents();
-  // }, [events, selectedTab, searchQuery, date]);
-  useEffect(() => {
-    const filterEvents = () => {
-      const currentDate = new Date();
-
-      interface Timing {
-        date: string;
-        startTime: string;
-        endTime: string;
-      }
-
-      interface Event {
-        _id: string;
-        status?: string;
-        timings?: Timing[];
-        [key: string]: any; // For other potential properties
-      }
-
-      interface DateRange {
-        from?: Date;
-        to?: Date;
-      }
-
-      const filtered = events.filter((event: Event) => {
-        // Handle earliest date calculation with proper type safety
-        const earliestDate = event.timings?.length
-          ? new Date(
-              Math.min(
-                ...event.timings.map((t: Timing) => new Date(t.date).getTime())
-              )
-            )
-          : null;
-
-        // Convert event to string for search, with null check
-        const eventValuesString = JSON.stringify(event || {}).toLowerCase();
-        const matchesSearch = eventValuesString.includes(
-          (searchQuery || "").toLowerCase()
-        );
-
-        // Type-safe tab matching
-        const matchesTab = (() => {
-          switch (selectedTab) {
-            case "all":
-              return true;
-            case "draft":
-              return event.status === "draft" || !event.status;
-            case "active":
-              return event.status === "active";
-            case "completed":
-              return event.status === "completed";
-            default:
-              return false;
-          }
-        })();
-
-        // Safe date range comparison
-        const matchesDateRange =
-          date?.from && date?.to && earliestDate
-            ? earliestDate >= date.from && earliestDate <= date.to
-            : true;
-
-        return matchesTab && matchesSearch && matchesDateRange;
-      });
-
-      setFilteredEvents(filtered);
-    };
-
-    filterEvents();
-  }, [events, selectedTab, searchQuery, date]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        Loading...
-      </div>
-    );
-  }
-
-  return (
-    <div className="w-full max-w-[1400px] mx-auto">
-      <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
-        <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between mb-6">
-          <TabsList className="flex-shrink-0 w-full lg:w-auto overflow-x-auto">
-            <TabsTrigger value="all">All Events</TabsTrigger>
-            <TabsTrigger value="active">Upcoming Events</TabsTrigger>
-            <TabsTrigger value="completed">Past Events</TabsTrigger>
-            <TabsTrigger value="draft">Draft</TabsTrigger>
-          </TabsList>
-
-          <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
-            <Input
-              placeholder="Search Events..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full lg:w-[250px]"
-            />
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full lg:w-[250px]">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd, y")} -{" "}
-                        {format(date.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(date.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
-
-        <TabsContent value={selectedTab} className="mt-4">
-          <EventCardTable events={filteredEvents} />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
 }
 
 const EventCardTable = ({ events }: { events: Event[] }) => {
@@ -452,7 +232,7 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
                             </span>
                           </p>
                         )}
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <p className="text-sm font-medium flex items-center gap-1">
                           <Tag className="h-4 w-4" />
                           {formatPrice(event.ticketVariants)}
                         </p>
@@ -536,3 +316,5 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
     </Card>
   );
 };
+
+export default EventCardTable;
