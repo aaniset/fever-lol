@@ -44,3 +44,41 @@ export const OrderSchemaZod = OrderSchema;
 
 // Export the inferred type
 export type OrderType = z.infer<typeof OrderSchema>;
+
+
+// {
+//   "_id": "668722ba7728615009d46836",
+//   "orderId": "ORDVTFRW",
+//   "orderDate": "2025-02-17T03:29:39.545Z",
+//   "customerName": "Trevor Price-Erdman",
+//   "customerEmail": "Vernice.McKenzie@gmail.com",
+//   "eventName": "Proactive maximized encryption",
+//   "eventId": "668722ba7728615009d46417",
+//   "organizerId": "6681971d54bbd146fcee3741",
+//   "subtotal": 66,
+//   "platformFee": 3.3,
+//   "paymentGatewayFee": 1.32,
+//   "totalAmountPaid": 67.32,
+//   "paymentStatus": "pending",
+//   "orderStatus": "confirmed",
+//   "payoutStatus": "pending",
+//   "payoutAmount": 62.7,
+//   "event": {
+//       "name": "Proactive maximized encryption",
+//       "date": "2025-03-28T03:05:35.762Z",
+//       "startTime": "00:00",
+//       "venue": "Franecki, Walter and Crooks",
+//       "address": "3120 Reynolds Isle, Greenfelderberg, Connecticut",
+//       "mapLink": "https://maps.google.com",
+//       "platformFee": "organizer",
+//       "paymentGatewayFee": "user"
+//   },
+//   "ticketDetails": [
+//       {
+//           "type": "General Entry",
+//           "quantity": 3,
+//           "price": 22
+//       }
+//   ],
+//   "discounts": 0
+// }

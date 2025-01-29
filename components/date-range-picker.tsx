@@ -1,3 +1,4 @@
+// date-range-picker.tsx
 "use client";
 
 import * as React from "react";
@@ -14,13 +15,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+interface CalendarDateRangePickerProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  onDateRangeChange?: (dateRange: DateRange | undefined) => void;
+}
+
 export function CalendarDateRangePicker({
   className,
-}: React.HTMLAttributes<HTMLDivElement>) {
+  onDateRangeChange,
+}: CalendarDateRangePickerProps) {
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: new Date(2023, 0, 20),
     to: addDays(new Date(2023, 0, 20), 20),
   });
+
+  const handleSelect = (newDate: DateRange | undefined) => {
+    setDate(newDate);
+    onDateRangeChange?.(newDate);
+  };
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -55,7 +67,7 @@ export function CalendarDateRangePicker({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
           />
         </PopoverContent>
