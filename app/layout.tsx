@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SessionWrapper from "@/components/session-wrapper";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import Script from "next/script";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,7 +32,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionWrapper>
-          <NuqsAdapter>{children} </NuqsAdapter>
+          <NuqsAdapter>
+            {children}{" "}
+            <Script
+              src="https://checkout.razorpay.com/v1/checkout.js"
+              strategy="lazyOnload"
+            />{" "}
+          </NuqsAdapter>
         </SessionWrapper>
       </body>
     </html>
