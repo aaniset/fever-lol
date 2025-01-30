@@ -25,7 +25,6 @@ import { EventPromoCodeForm } from "@/components/event-promo-code-form";
 import { EventTicketPricingFees } from "@/components/event-ticket-pricing-fee";
 import { EventTicketVariant } from "@/components/event-ticket-variant";
 import { EventStatusSelector } from "./event-status-selector";
-import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -194,33 +193,6 @@ export default function EventForm() {
       console.error("Error saving event:", error);
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!eventId || !confirm("Are you sure you want to delete this event?"))
-      return;
-    setIsLoading(true);
-    try {
-      await axios.delete(`/api/events/${eventId}`);
-      // Handle successful deletion (e.g., redirect)
-    } catch (error) {
-      console.error("Error deleting event:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePublish = async () => {
-    if (!eventId) return;
-    setIsLoading(true);
-    try {
-      await axios.patch(`/api/events/${eventId}/publish`);
-      // Handle successful publish
-    } catch (error) {
-      console.error("Error publishing event:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 

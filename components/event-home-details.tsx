@@ -39,6 +39,7 @@ import {
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 
 interface Timing {
   date: string;
@@ -104,6 +105,7 @@ export function EventHomeDetails() {
         setIsLoading(false);
       } catch (err) {
         setError("Failed to fetch event details");
+        console.error(err);
         setIsLoading(false);
       }
     };
@@ -200,21 +202,25 @@ export function EventHomeDetails() {
   return (
     <div className="relative flex w-full min-h-dvh items-center justify-center bg-background px-4 md:px-6">
       <div className="absolute top-[-100px] inset-0 z-0 h-3/4 w-full overflow-hidden">
-        <img
-          src={event.eventFlyer} // Replace with your actual background image path
+        <Image
+          src={event.eventFlyer}
           alt="Background"
-          className="w-full h-full object-cover object-center opacity-40 blur-[50px] left-[-100px] right-[-100px]"
+          fill
+          className="object-cover object-center opacity-40 blur-[50px] -left-[100px] -right-[100px]"
+          quality={10}
+          priority={false}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background opacity-100"></div>
       </div>
       <div className="container relative z-10 grid grid-cols-1 gap-8 py-12 md:grid-cols-3 md:gap-12 lg:gap-16">
         <div className=" md:sticky top-32 w-full aspect-square max-w-[600px] overflow-hidden rounded-xl md:col-span-1">
-          <img
+          <Image
             src={event.eventFlyer}
             alt="Event Flyer"
             width={600}
             height={600}
-            className="w-full h-full object-cover object-center"
+            className="object-cover object-center"
+            priority={true}
           />
         </div>
         <div className="flex flex-col items-start justify-center space-y-6 md:col-span-2 overflow-auto">
@@ -236,7 +242,7 @@ export function EventHomeDetails() {
                       From ₹{lowestPrice}
                     </div>
                     <p className="text-muted-foreground">
-                      The price you'll pay. No surprises later.
+                      The price you&apos;ll pay. No surprises later.
                     </p>
                   </div>
                   <Button onClick={() => setIsDrawerOpen(true)}>Buy Now</Button>
@@ -459,7 +465,7 @@ export function EventHomeDetails() {
             <DrawerHeader>
               <DrawerTitle>Select Tickets</DrawerTitle>
               <DrawerDescription>
-                Choose the number of tickets you'd like to purchase.
+                Choose the number of tickets you&apos;d like to purchase.
               </DrawerDescription>
             </DrawerHeader>
             <div className="space-y-4 px-4">

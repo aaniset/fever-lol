@@ -106,11 +106,12 @@ export function OnboardingForm() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("/api/onboarding", formData);
+      await axios.post("/api/onboarding", formData);
       toast.success("Profile completed successfully!");
       router.push("/dashboard");
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
+      console.error(error)
     } finally {
       setIsLoading(false);
     }

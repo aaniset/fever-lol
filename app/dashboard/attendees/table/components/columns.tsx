@@ -108,7 +108,7 @@ export const columns: ColumnDef<AttendeeInfo>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="action" />
     ),
-    cell: ({ row }) => (
+    cell: ({}) => (
       <div className="w-[100px]">
         <Button variant="link" className=" ">
           <CheckCircle className="h-3.5" /> Check in now

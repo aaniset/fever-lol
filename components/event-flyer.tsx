@@ -18,6 +18,7 @@ import { TrashIcon, UploadIcon } from "lucide-react";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
+import Image from "next/image";
 
 export function EventFlyer({ form }: any) {
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -93,17 +94,19 @@ export function EventFlyer({ form }: any) {
         <FormField
           control={form.control}
           name="eventFlyer"
-          render={({ field: { value, onChange, ...field } }) => (
+          render={({ field: { ...field } }) => (
             <FormItem>
               <FormControl>
                 <div className="grid gap-4">
                   <div className="flex items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 transition-colors hover:border-muted-foreground/50">
                     {previewUrl ? (
                       <div className="relative w-full aspect-video">
-                        <img
+                        <Image
                           src={previewUrl}
                           alt="Event flyer preview"
-                          className="rounded-md object-cover w-full h-full"
+                          fill
+                          className="rounded-md object-cover"
+                          priority={true}
                         />
                         <Button
                           type="button"

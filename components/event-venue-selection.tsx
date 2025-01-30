@@ -47,12 +47,7 @@ import axios from "axios";
 interface StateOptions {
   [key: string]: { value: string; label: string }[];
 }
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 const stateOptions: StateOptions = {
   US: [
     { value: "AL", label: "Alabama" },
@@ -270,7 +265,7 @@ export function EventVenueSelection({ form }: { form: any }) {
     <FormField
       control={form.control}
       name="venueId"
-      render={({ field }) => (
+      render={({}) => (
         <FormItem>
           <Card>
             <CardHeader>

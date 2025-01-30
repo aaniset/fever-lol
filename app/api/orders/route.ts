@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const client = await db;
     const ordersCollection = client.db().collection("orders");
 
-    let matchStage: any = { organizerId: new ObjectId(userId) };
+    const matchStage: any = { organizerId: new ObjectId(userId) };
     if (eventId) matchStage.eventId = new ObjectId(eventId as string);
 
     const pipeline = [

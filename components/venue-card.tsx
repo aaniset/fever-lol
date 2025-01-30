@@ -1,6 +1,5 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PlusCircle, MoreHorizontal, Loader2 } from "lucide-react";
 import axios from "axios";

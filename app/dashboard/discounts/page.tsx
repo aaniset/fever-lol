@@ -139,10 +139,6 @@ const PromocodeCardTable = ({ promocodes }: { promocodes: any[] }) => {
   const [pageSize, setPageSize] = useState(10);
 
   const pageCount = Math.ceil(promocodes.length / pageSize);
-  const paginatedPromocodes = promocodes.slice(
-    pageIndex * pageSize,
-    pageIndex * pageSize + pageSize
-  );
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && newPage < pageCount) {

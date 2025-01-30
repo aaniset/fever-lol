@@ -6,12 +6,7 @@ import Link from "next/link";
 import axios from "axios";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowRightIcon,
-  CalendarIcon,
-  MapPinIcon,
-  MountainIcon,
-} from "lucide-react";
+import { ArrowRightIcon, CalendarIcon, MapPinIcon } from "lucide-react";
 
 interface Event {
   id: string;

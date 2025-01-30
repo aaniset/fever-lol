@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
-import { ObjectId } from "mongodb";
 import {
   startOfDay,
   subDays,
@@ -9,7 +8,7 @@ import {
   endOfMonth,
 } from "date-fns";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     const session = await auth();
     if (!session) {

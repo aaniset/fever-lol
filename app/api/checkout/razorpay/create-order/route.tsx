@@ -4,7 +4,7 @@ const razorpay = new Razorpay({
   key_id: process.env.TEST_RAZORPAY_KEY_ID!,
   key_secret: process.env.TEST_RAZORPAY_KEY_SECRET!,
 });
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   try {
     const { amount } = await req.json();
     const options = {

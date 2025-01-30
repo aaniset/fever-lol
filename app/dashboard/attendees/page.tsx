@@ -12,7 +12,7 @@ import axios from "axios";
 export default function AttendeesPage() {
   const searchParams = useSearchParams();
   const eventId = searchParams.get("eventId");
-  const [isLoading, setIsLoading] = useState<Boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [attendees, setAttendees] = useState<AttendeeInfo[]>([]);
 
   useEffect(() => {

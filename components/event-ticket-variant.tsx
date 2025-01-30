@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useFieldArray } from "react-hook-form";
-import { Edit2, Plus, Trash2, X, Ticket } from "lucide-react";
+import { Edit2, Plus, Trash2, Ticket } from "lucide-react";
 
 import {
   Card,

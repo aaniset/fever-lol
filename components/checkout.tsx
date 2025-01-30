@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Loader2 } from "lucide-react";
 import { Calendar as CalendarIcon, Clock as ClockIcon } from "lucide-react";
+import Image from "next/image";
 
 interface Timing {
   date: string;
@@ -255,10 +256,13 @@ export function Checkout() {
   return (
     <div className="relative w-full">
       <div className="absolute top-[-100px] inset-0 z-0 w-full h-full overflow-hidden">
-        <img
+        <Image
           src={event.eventFlyer}
           alt="Background"
-          className="w-full h-full object-cover object-center opacity-40 blur-[20px]"
+          fill
+          className="object-cover object-center opacity-40 blur-[20px]"
+          quality={10}
+          priority={false}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background opacity-100"></div>
       </div>

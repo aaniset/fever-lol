@@ -13,7 +13,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from "@/components/ui/form";
 import {
   Card,
@@ -98,6 +97,7 @@ export function PaymentForm() {
           setGateway(data.paymentGateway || "");
         }
       } catch (error) {
+        console.error(error);
         toast.error("Failed to load configuration");
       } finally {
         setIsLoading(false);
@@ -243,7 +243,9 @@ export function PaymentForm() {
                           />
                           <button
                             type="button"
-                            onClick={() => setShowRazorpaySecret(!showRazorpaySecret)}
+                            onClick={() =>
+                              setShowRazorpaySecret(!showRazorpaySecret)
+                            }
                             className="absolute right-3 top-1/2 -translate-y-1/2"
                           >
                             {showRazorpaySecret ? (
@@ -306,7 +308,9 @@ export function PaymentForm() {
                           />
                           <button
                             type="button"
-                            onClick={() => setShowStripeSecret(!showStripeSecret)}
+                            onClick={() =>
+                              setShowStripeSecret(!showStripeSecret)
+                            }
                             className="absolute right-3 top-1/2 -translate-y-1/2"
                           >
                             {showStripeSecret ? (

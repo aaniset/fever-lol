@@ -1,21 +1,8 @@
 // Backend: /api/create-checkout.ts
-import { z } from "zod";
-import { MongoClient, ObjectId } from "mongodb";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 
-// Define the schema for a single ticket item
-const TicketItemSchema = z.object({
-  type: z.string(),
-  description: z.string(),
-  quantity: z.number().int().positive(),
-  price: z.number().positive(),
-});
-
-// Define the schema for the entire cart
-const CartSchema = z.array(TicketItemSchema);
-
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   //     if (req.method !== 'POST') {
   //     return res.status(405).json({ message: 'Method Not Allowed' });
   //   }

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { format } from "date-fns";
+import Image from "next/image";
 import {
   Card,
   CardHeader,
@@ -155,10 +156,13 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
               <Card key={event._id} className="flex flex-col">
                 <div className="p-4">
                   <div className="flex items-start gap-4">
-                    <img
+                    <Image
                       src={event.eventFlyer || "/placeholder.svg"}
                       alt={event.eventName}
-                      className="w-20 h-20 object-cover rounded-lg"
+                      width={80}
+                      height={80}
+                      className="object-cover rounded-lg"
+                      priority={false}
                     />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between">

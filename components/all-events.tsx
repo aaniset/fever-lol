@@ -2,6 +2,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   PlusCircle,
   MapPin,
@@ -13,11 +14,6 @@ import {
   ChevronsRight,
   Loader2,
   Tag,
-  CalendarX,
-  ShoppingCart,
-  Pencil,
-  MoreVertical,
-  Users,
 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -110,52 +106,8 @@ export default function EventsComponent() {
     fetchEvents();
   }, []);
 
-  // useEffect(() => {
-  //   const filterEvents = () => {
-  //     const currentDate = new Date();
-
-  //     const filtered = events.filter((event: any) => {
-  //       const earliestDate = event.timings?.length
-  //         ? new Date(Math.min(...event.timings.map((t) => new Date(t.date))))[1]
-  //         : null;
-
-  //       const eventValuesString = JSON.stringify(event).toLowerCase();
-  //       const matchesSearch = eventValuesString.includes(
-  //         searchQuery.toLowerCase()
-  //       );
-
-  //       const matchesTab = (() => {
-  //         switch (selectedTab) {
-  //           case "all":
-  //             return true;
-  //           case "draft":
-  //             return event.status === "draft" || !event.status;
-  //           case "active":
-  //             return event.status === "active";
-  //           case "completed":
-  //             return event.status === "completed";
-  //           default:
-  //             return false;
-  //         }
-  //       })();
-
-  //       const matchesDateRange =
-  //         date?.from && date?.to && earliestDate
-  //           ? earliestDate >= date.from && earliestDate <= date.to[1]
-  //           : true;
-
-  //       return matchesTab && matchesSearch && matchesDateRange;
-  //     });
-
-  //     setFilteredEvents(filtered);
-  //   };
-
-  //   filterEvents();
-  // }, [events, selectedTab, searchQuery, date]);
   useEffect(() => {
     const filterEvents = () => {
-      const currentDate = new Date();
-
       interface Timing {
         date: string;
         startTime: string;
@@ -167,11 +119,6 @@ export default function EventsComponent() {
         status?: string;
         timings?: Timing[];
         [key: string]: any; // For other potential properties
-      }
-
-      interface DateRange {
-        from?: Date;
-        to?: Date;
       }
 
       const filtered = events.filter((event: Event) => {
@@ -375,10 +322,13 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
               <Card key={event._id} className="flex flex-col">
                 <div className="p-4">
                   <div className="flex items-start gap-4">
-                    <img
+                    <Image
                       src={event.eventFlyer || "/placeholder.svg"}
                       alt={event.eventName}
-                      className="w-20 h-20 object-cover rounded-lg"
+                      width={80}
+                      height={80}
+                      className="object-cover rounded-lg"
+                      priority={false}
                     />
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start justify-between">

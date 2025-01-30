@@ -64,15 +64,15 @@ export function EventPromoCodeForm({ form }: any) {
     });
   };
 
-  const updatePromoCode = (index: number, updatedCode: Partial<PromoCode>) => {
-    const newCodes = [...promoCodes];
-    newCodes[index] = { ...newCodes[index], ...updatedCode };
-    setPromoCodes(newCodes);
-    form.setValue("promoCodes", newCodes, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  };
+  // const updatePromoCode = (index: number, updatedCode: Partial<PromoCode>) => {
+  //   const newCodes = [...promoCodes];
+  //   newCodes[index] = { ...newCodes[index], ...updatedCode };
+  //   setPromoCodes(newCodes);
+  //   form.setValue("promoCodes", newCodes, {
+  //     shouldValidate: true,
+  //     shouldDirty: true,
+  //   });
+  // };
 
   const addPromoCode = () => {
     const newCode: PromoCode = {
@@ -92,7 +92,7 @@ export function EventPromoCodeForm({ form }: any) {
     <FormField
       control={form.control}
       name="promoCodes"
-      render={({ field }) => (
+      render={({}) => (
         <FormItem>
           <Card>
             <CardHeader>

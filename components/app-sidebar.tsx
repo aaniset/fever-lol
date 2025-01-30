@@ -7,11 +7,9 @@ import {
   TicketIcon,
   Store,
   Settings,
-  BarChart3,
   HelpCircle,
   Bell,
   MapPin,
-  BadgePercent,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 

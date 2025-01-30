@@ -16,6 +16,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
 
 interface PurchaseSuccessfulProps {
   checkoutData: any;
@@ -133,17 +134,22 @@ export function PurchaseSuccessful({ checkoutData }: PurchaseSuccessfulProps) {
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-6 p-6">
             <div className="flex flex-col gap-4">
-              <img
+              <Image
                 src={checkoutData.event.eventFlyer}
                 alt="Event Flyer"
-                className="w-full aspect-square object-cover rounded-lg"
+                width={500}
+                height={500}
+                className="object-cover rounded-lg"
+                priority={true}
               />
               {qrCodeUrl && (
                 <div className="flex flex-col items-center">
-                  <img
+                  <Image
                     src={qrCodeUrl}
                     alt="Ticket QR Code"
-                    className="w-32 h-32"
+                    width={128}
+                    height={128}
+                    priority={true}
                   />
                 </div>
               )}

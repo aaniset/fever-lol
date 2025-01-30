@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ObjectId } from "mongodb";
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const session = await auth();
     if (!session) {

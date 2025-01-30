@@ -35,13 +35,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useState, useEffect } from "react";
 
 interface TimeSlot {
@@ -111,7 +105,7 @@ export function EventTimeSlotsManager({ form }: any) {
     <FormField
       control={form.control}
       name="timings"
-      render={({ field }) => (
+      render={({}) => (
         <FormItem>
           <Card className="h-fit">
             <CardHeader>

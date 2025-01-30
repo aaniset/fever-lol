@@ -51,6 +51,9 @@ export function DataTableToolbar<TData>({
     // label: "",
     // value: "  ",
   }));
+  if (loading) {
+    return <>Loading</>;
+  }
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">

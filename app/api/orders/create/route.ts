@@ -1,26 +1,7 @@
 // app/api/orders/create/route.ts
 
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ObjectId } from "mongodb";
-import { z } from "zod";
-
-const TicketDetailSchema = z.object({
-  type: z.string(),
-  quantity: z.number().int().positive(),
-  price: z.number().nonnegative(),
-});
-
-const EventInfoSchema = z.object({
-  name: z.string(),
-  date: z.string().datetime(),
-  startTime: z.string(),
-  venue: z.string(),
-  address: z.string(),
-  mapLink: z.string().url(),
-  platformFee: z.enum(["organizer", "user"]),
-  paymentGatewayFee: z.enum(["organizer", "user"]),
-});
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +12,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
     const {
-      checkoutId,
       paymentId,
       orderId: razorpayOrderId,
       customerInfo,

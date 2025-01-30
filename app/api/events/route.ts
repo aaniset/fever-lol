@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ObjectId } from "mongodb";
-import { parseISO, format } from "date-fns";
+import { parseISO } from "date-fns";
 
 // Helper function to normalize date for comparison
 function normalizeDateForComparison(date: Date | string) {
@@ -9,7 +9,7 @@ function normalizeDateForComparison(date: Date | string) {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
 }
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const session = await auth();
     if (!session) {
