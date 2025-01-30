@@ -1,20 +1,7 @@
 "use client";
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -113,59 +100,37 @@ export default function DiscountsPage() {
     setSelectedTab(tabValue);
   };
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Discounts</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <h1 className="text-2xl font-bold tracking-tight">Discounts</h1>
+      <Tabs value={selectedTab} onValueChange={handleTabClick}>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+          <TabsList className="flex mb-4 md:mb-0 md:mr-4">
+            <TabsTrigger value="all">All</TabsTrigger>
+            <TabsTrigger value="draft">Draft</TabsTrigger>
+            <TabsTrigger value="active">Active</TabsTrigger>
+          </TabsList>
+          <div className="flex flex-col md:flex-row items-start md:items-center w-full md:w-auto">
+            <Input
+              placeholder="Search Promocodes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 mb-4 md:mb-0 md:mx-4 w-full md:w-[150px] lg:w-[250px]"
+            />
           </div>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <h1 className="text-2xl font-bold tracking-tight">Discounts</h1>
-          <Tabs value={selectedTab} onValueChange={handleTabClick}>
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-              <TabsList className="flex mb-4 md:mb-0 md:mr-4">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="draft">Draft</TabsTrigger>
-                <TabsTrigger value="active">Active</TabsTrigger>
-              </TabsList>
-              <div className="flex flex-col md:flex-row items-start md:items-center w-full md:w-auto">
-                <Input
-                  placeholder="Search Promocodes..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-8 mb-4 md:mb-0 md:mx-4 w-full md:w-[150px] lg:w-[250px]"
-                />
-              </div>
-            </div>
-
-            <TabsContent value="all">
-              <PromocodeCardTable promocodes={filteredPromocodes} />
-            </TabsContent>
-            <TabsContent value="draft">
-              <PromocodeCardTable promocodes={filteredPromocodes} />
-            </TabsContent>
-            <TabsContent value="active">
-              <PromocodeCardTable promocodes={filteredPromocodes} />
-            </TabsContent>
-          </Tabs>
-          {/* Add your events content here */}
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+
+        <TabsContent value="all">
+          <PromocodeCardTable promocodes={filteredPromocodes} />
+        </TabsContent>
+        <TabsContent value="draft">
+          <PromocodeCardTable promocodes={filteredPromocodes} />
+        </TabsContent>
+        <TabsContent value="active">
+          <PromocodeCardTable promocodes={filteredPromocodes} />
+        </TabsContent>
+      </Tabs>
+      {/* Add your events content here */}
+    </div>
   );
 }
 

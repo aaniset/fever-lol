@@ -1,5 +1,3 @@
-// app/api/checkout/[checkoutId]/route.ts
-
 import { ObjectId } from "mongodb";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
@@ -50,7 +48,20 @@ export async function GET(
       return new Response("Venue not found", { status: 404 });
     }
 
-    // Construct the response
+    // Fetch payment gateway configuration
+    const paymentConfigs = client.db().collection("payment_configs");
+    const paymentGateway = await paymentConfigs.findOne({
+      userId: event.userId, // Assuming userId is stored in the event object
+    });
+
+    if (!paymentGateway) {
+      console.log("payment gateway configuration not found");
+      return new Response("Payment gateway configuration not found", {
+        status: 404,
+      });
+    }
+
+    // Construct the response with all event details
     const response = {
       cart: checkout?.cart,
       event: {
@@ -58,11 +69,21 @@ export async function GET(
         eventName: event.eventName,
         eventFlyer: event.eventFlyer,
         timings: event.timings,
+        description: event.description,
+        status: event.status,
+        // Include any other event fields you have
       },
       venue: {
         _id: venue._id,
         venueName: venue.venueName,
         city: venue.city,
+        // Include any other venue fields you have
+      },
+      paymentGateway: {
+        _id: paymentGateway._id,
+        paymentGateway: paymentGateway.paymentGateway,
+        currency: paymentGateway.paymentGateway === "razorpay" ? "INR" : "USD",
+        // Exclude sensitive information like API keys
       },
     };
 

@@ -1,19 +1,4 @@
 "use client";
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -46,65 +31,12 @@ export default function OrdersPage() {
       });
   }, [eventId]);
   return (
-    // <SidebarProvider>
-    //   <AppSidebar />
-    //   <SidebarInset>
-    //     <header className="flex h-16 shrink-0 items-center gap-2">
-    //       <div className="flex items-center gap-2 px-4">
-    //         <SidebarTrigger className="-ml-1" />
-    //         <Separator orientation="vertical" className="mr-2 h-4" />
-    //         <Breadcrumb>
-    //           <BreadcrumbList>
-    //             <BreadcrumbItem>
-    //               <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-    //             </BreadcrumbItem>
-    //             <BreadcrumbSeparator />
-    //             <BreadcrumbItem>
-    //               <BreadcrumbPage>Orders</BreadcrumbPage>
-    //             </BreadcrumbItem>
-    //           </BreadcrumbList>
-    //         </Breadcrumb>
-    //       </div>
-    //     </header>
-    //     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-    //       <CardContent>
-    //         <DataTable data={orders} columns={columns} isLoading={isLoading} />
-    //       </CardContent>
-    //     </div>
-    //   </SidebarInset>
-    // </SidebarProvider>
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="flex flex-col min-h-screen overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center gap-2 sticky top-0 bg-background z-10">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Orders</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <main className="flex-1 overflow-auto">
-          <div className="container mx-auto p-4">
-            <CardContent className="p-0">
-              <DataTable
-                data={orders}
-                columns={columns}
-                isLoading={isLoading}
-              />
-            </CardContent>
-          </div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <main className="flex-1 overflow-auto">
+      <div className="container mx-auto p-4">
+        <CardContent className="p-0">
+          <DataTable data={orders} columns={columns} isLoading={isLoading} />
+        </CardContent>
+      </div>
+    </main>
   );
 }

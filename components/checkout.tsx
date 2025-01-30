@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { Label } from "@/components/ui/label";
@@ -8,154 +8,231 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { Calendar as CalendarIcon, Clock as ClockIcon } from "lucide-react";
-import Head from "next/head";
-import { PurchaseSuccessful } from "@/components/purchase-successful";
+
+interface Timing {
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+interface Event {
+  eventName: string;
+  eventFlyer: string;
+  timings: Timing[];
+  _id: string;
+}
+
+interface Venue {
+  venueName: string;
+  city: string;
+}
+
+interface CartItem {
+  type: string;
+  quantity: number;
+  price: number;
+}
+
+interface CheckoutData {
+  event: Event;
+  venue: Venue;
+  cart: CartItem[];
+  paymentGateway?: {
+    currency: string;
+    // other payment gateway fields
+  };
+}
+interface PromoResponse {
+  success: boolean;
+  message: string;
+  couponDetails?: {
+    code: string;
+    discountType: string;
+    discountValue: number;
+  };
+  calculation?: {
+    originalAmount: number;
+    discountAmount: number;
+    finalAmount: number;
+  };
+}
+interface CustomerInfo {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+}
 
 export function Checkout() {
   const params = useParams();
+  const router = useRouter();
   const checkoutId = params.checkoutId as string;
-  const [checkoutData, setCheckoutData] = useState(null);
-  const [customerInfo, setCustomerInfo] = useState({
+  const [isLoading, setIsLoading] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
     firstName: "",
     lastName: "",
     phone: "",
     email: "",
   });
+  const [couponCode, setCouponCode] = useState("");
+  const [couponMessage, setCouponMessage] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   useEffect(() => {
     const fetchCheckoutData = async () => {
       try {
         const response = await axios.get(`/api/checkout/${checkoutId}`);
-        console.log(response.data);
         setCheckoutData(response.data);
       } catch (error) {
         console.error("Error fetching checkout data:", error);
-        // You might want to handle specific error cases
-        if (axios.isAxiosError(error)) {
-          if (error.response?.status === 404) {
-            console.log("Checkout not found");
-          } else if (error.response?.status === 403) {
-            console.log("Unauthorized access");
-          } else {
-            console.log("An error occurred while fetching checkout data");
-          }
-        }
       }
     };
 
     fetchCheckoutData();
   }, [checkoutId]);
+
   if (!checkoutData) return <div>Loading...</div>;
 
-  const handleInputChange = (e) => {
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+
+    setIsApplyingCoupon(true);
+    setCouponMessage(null);
+
+    try {
+      const response = await axios.post<PromoResponse>(
+        `/api/checkout/${checkoutId}/validate-coupon`,
+        {
+          eventId: checkoutData?.event._id,
+          couponCode: couponCode.trim(),
+        }
+      );
+
+      const data = response.data;
+      if (data.success) {
+        setCouponMessage({
+          type: "success",
+          message: data.message,
+        });
+        // Store the USD discount amount
+        const usdDiscountAmount = data.calculation?.discountAmount || 0;
+        setDiscountAmount(usdDiscountAmount);
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to apply coupon";
+      setCouponMessage({
+        type: "error",
+        message: errorMessage,
+      });
+      setDiscountAmount(0);
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setCustomerInfo((prev) => ({ ...prev, [id]: value }));
   };
-  const handlePayment = async (amount) => {
-    try {
-      // Create order on the server
-      const response = await axios.post("/api/create-order", { amount });
-      const order = response.data;
 
-      // Initialize Razorpay
-      const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: "INR",
-        name: "Your Company Name",
-        description: "Test Transaction",
-        order_id: order.id,
-        handler: async (response: any) => {
-          try {
-            // Verify payment on the server
-            const verifyResponse = await axios.post(
-              "/api/verify-payment",
-              response
-            );
-            console.log(verifyResponse.data);
-            alert("Payment Successful");
-          } catch (error) {
-            console.error("Payment verification failed:", error);
-            alert("Payment verification failed");
-          }
-        },
-        prefill: {
-          name: "John Doe",
-          email: "johndoe@example.com",
-          contact: "9999999999",
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-
-      const razorpay = new (window as any).Razorpay(options);
-      razorpay.open();
-    } catch (error) {
-      console.error("Payment initiation failed:", error);
-      alert("Payment initiation failed");
-    }
-  };
   const subTotal = checkoutData.cart.reduce((total, ticket) => {
     return total + ticket.quantity * ticket.price;
   }, 0);
-  const platformFee = subTotal * 0.05;
-  const paymentGatewayFee = (subTotal + platformFee) * 0.03;
-  const total = subTotal + platformFee + paymentGatewayFee;
 
+  const paymentGatewayFee = subTotal * 0.03;
+
+  const total = subTotal + paymentGatewayFee - discountAmount;
+  const handlePaymentSuccess = async (paymentResponse: any) => {
+    try {
+      // First verify the payment
+      await axios.post("/api/checkout/razorpay/verify-payment", {
+        ...paymentResponse,
+        checkoutId,
+      });
+
+      // Then create order and tickets
+      const orderData = {
+        checkoutId,
+        paymentId: paymentResponse.razorpay_payment_id,
+        orderId: paymentResponse.razorpay_order_id,
+        customerInfo,
+        cart: checkoutData.cart,
+        event: checkoutData.event,
+        venue: checkoutData.venue,
+        subTotal,
+        paymentGatewayFee,
+        discountAmount,
+        totalAmount: total,
+      };
+
+      const response = await axios.post("/api/orders/create", orderData);
+
+      // Redirect to success page with order ID
+      router.push(
+        `/checkout/${checkoutId}/success?orderId=${response.data.orderId}`
+      );
+    } catch (error) {
+      console.error("Order creation failed:", error);
+      alert("Payment successful but order creation failed");
+    }
+  };
   const handleCompletePurchase = async () => {
     if (typeof window === "undefined" || !window.Razorpay) {
       console.error("Razorpay SDK not loaded");
       return;
     }
+
+    setIsLoading(true);
     try {
-      const amount = total * 100;
-      // Create order on the server
+      // Convert to INR if payment gateway currency is INR
+      const conversionRate =
+        checkoutData.paymentGateway?.currency === "INR" ? 86 : 1;
+      const finalAmount = total * conversionRate;
+      const amount = Math.round(finalAmount); // Razorpay expects amount in paise/cents
+
       const response = await axios.post("/api/checkout/razorpay/create-order", {
         amount,
+        checkoutId,
+        customerInfo,
+        currency: checkoutData.paymentGateway?.currency || "USD",
       });
       const order = response.data;
 
-      // Initialize Razorpay
       const options = {
-        key: process.env.TEST_RAZORPAY_KEY_ID,
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
-        currency: "INR",
-        name: "Your Company Name",
-        description: "Test Transaction",
+        currency: checkoutData.paymentGateway?.currency || "USD",
+        name: checkoutData.event.eventName,
+        description: `Tickets for ${checkoutData.event.eventName}`,
         order_id: order.id,
-        handler: async (response: any) => {
-          try {
-            // Verify payment on the server
-            const verifyResponse = await axios.post(
-              "/api/checkout/razorpay/verify-payment",
-              response
-            );
-            console.log(verifyResponse.data);
-            alert("Payment Successful");
-          } catch (error) {
-            console.error("Payment verification failed:", error);
-            alert("Payment verification failed");
-          }
-        },
+        // handler: async (response: any) => {
+        //   try {
+        //     await axios.post("/api/checkout/razorpay/verify-payment", {
+        //       ...response,
+        //       checkoutId,
+        //     });
+        //     router.push(`/checkout/${checkoutId}/success`);
+        //   } catch (error) {
+        //     console.error("Payment verification failed:", error);
+        //     alert("Payment verification failed");
+        //   }
+        // },
+        handler: handlePaymentSuccess,
         prefill: {
-          name: customerInfo.firstName + customerInfo.lastName,
+          name: `${customerInfo.firstName} ${customerInfo.lastName}`,
           email: customerInfo.email,
           contact: customerInfo.phone,
         },
         theme: {
           color: "#3399cc",
         },
-        method: {
-          netbanking: true,
-          card: true,
-          upi: true,
-          wallet: true,
-          emi: true,
-          paylater: true,
-        },
       };
 
       const razorpay = new (window as any).Razorpay(options);
@@ -163,10 +240,17 @@ export function Checkout() {
     } catch (error) {
       console.error("Payment initiation failed:", error);
       alert("Payment initiation failed");
+    } finally {
+      setIsLoading(false);
     }
-    // Here you would typically send this data to your backend to process the purchase
   };
-
+  const formatPrice = (amount: number) => {
+    const currency = checkoutData.paymentGateway?.currency;
+    const conversionRate = currency === "INR" ? 86 : 1;
+    const convertedAmount = amount * conversionRate;
+    const symbol = currency === "INR" ? "₹" : "$";
+    return `${symbol}${convertedAmount.toFixed(2)}`;
+  };
   const { event, venue, cart } = checkoutData;
   return (
     <div className="relative w-full">
@@ -174,7 +258,7 @@ export function Checkout() {
         <img
           src={event.eventFlyer}
           alt="Background"
-          className="w-full h-full object-cover object-center opacity-40 blur-[50px]"
+          className="w-full h-full object-cover object-center opacity-40 blur-[20px]"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background opacity-100"></div>
       </div>
@@ -229,14 +313,18 @@ export function Checkout() {
                       <Label className="mb-2 block text-sm font-medium">
                         Price per Ticket
                       </Label>
-                      <div className="text-2xl font-bold">${item.price}</div>
+                      <div className="text-2xl font-bold">
+                        {formatPrice(item.price)}
+                      </div>
                     </div>
                     <div>
                       <Label className="mb-2 block text-sm font-medium">
                         Total Ticket Cost
                       </Label>
                       <div className="text-2xl font-bold text-primary">
-                        ${item.quantity * item.price}
+                        <div className="text-2xl font-bold">
+                          {formatPrice(total)}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -297,37 +385,67 @@ export function Checkout() {
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
               <div>Ticket Cost</div>
-              <div className="text-2xl font-bold">
-                {/* ${calculateTotalCost(checkoutData.cart)} */}$
-                {subTotal.toFixed(2)}
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>Platform Fee</div>
-              <div className="text-2xl font-bold">
-                ${platformFee.toFixed(2)}
-              </div>
+              <div className="text-2xl font-bold">{formatPrice(subTotal)}</div>
             </div>
             <div className="flex items-center justify-between">
               <div>Payment Gateway Fee</div>
               <div className="text-2xl font-bold">
-                ${paymentGatewayFee.toFixed(2)}
+                <div className="text-2xl font-bold">
+                  {formatPrice(paymentGatewayFee)}
+                </div>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <Input
-                type="text"
-                placeholder="Enter coupon code"
-                className="w-full sm:w-auto flex-grow"
-              />
-              <Button variant="outline" className="w-full sm:w-auto">
-                Apply
-              </Button>
+
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+                <Input
+                  type="text"
+                  placeholder="Enter coupon code"
+                  className="w-full sm:w-auto flex-grow"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                />
+                <Button
+                  variant="outline"
+                  className="w-full sm:w-auto"
+                  onClick={handleApplyCoupon}
+                  disabled={isApplyingCoupon}
+                >
+                  {isApplyingCoupon ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Applying...
+                    </>
+                  ) : (
+                    "Apply"
+                  )}
+                </Button>
+              </div>
+
+              {couponMessage && (
+                <div
+                  className={`text-sm ${
+                    couponMessage.type === "success"
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {couponMessage.message}
+                </div>
+              )}
+              {discountAmount > 0 && (
+                <div className="flex items-center justify-between text-green-500">
+                  <div>Discount Applied</div>
+                  <div className="text-2xl font-bold">
+                    -{formatPrice(discountAmount)}
+                  </div>
+                </div>
+              )}
             </div>
             <Separator />
             <div className="flex items-center justify-between">
               <div className="text-lg font-bold">Total</div>
-              <div className="text-2xl font-bold">${total.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{formatPrice(total)}</div>
             </div>
           </div>
           <div className="grid gap-4">
@@ -335,8 +453,16 @@ export function Checkout() {
               size="lg"
               className="w-full"
               onClick={handleCompletePurchase}
+              disabled={isLoading}
             >
-              Complete Purchase
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Complete Purchase"
+              )}
             </Button>
           </div>
         </div>

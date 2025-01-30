@@ -42,15 +42,15 @@ export async function POST(req: Request, res: Response) {
     });
 
     // Schedule deletion of the checkout document after 10 minutes
-    setTimeout(async () => {
-      const client = await MongoClient.connect(
-        process.env.MONGODB_URI as string
-      );
-      const db = client.db("your_database_name");
-      const checkouts = db.collection("checkouts");
-      await checkouts.deleteOne({ _id: result.insertedId });
-      await client.close();
-    }, 10 * 60 * 1000);
+    // setTimeout(async () => {
+    //   const client = await MongoClient.connect(
+    //     process.env.MONGODB_URI as string
+    //   );
+    //   const db = client.db("your_database_name");
+    //   const checkouts = db.collection("checkouts");
+    //   await checkouts.deleteOne({ _id: result.insertedId });
+    //   await client.close();
+    // }, 10 * 60 * 1000);
 
     // Return the checkoutId
     // res.status(200).json({ checkoutId: result.insertedId.toString() });
