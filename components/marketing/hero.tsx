@@ -63,7 +63,7 @@ export default function Hero() {
             className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Button asChild size="lg" className="group">
-              <Link href="/dashboard">
+              <Link href="/login">
                 Start Creating Free
                 <ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>

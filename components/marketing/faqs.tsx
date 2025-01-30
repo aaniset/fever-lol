@@ -47,7 +47,10 @@ const faqItems = [
 
 const Faqs = () => {
   return (
-    <section className="flex flex-col items-center w-full py-16 md:py-20 px-6 md:px-8 xl:px-16 gap-16 md:gap-20 relative bg-background">
+    <section
+      id="faqs"
+      className="flex flex-col items-center w-full py-16 md:py-20 px-6 md:px-8 xl:px-16 gap-16 md:gap-20 relative bg-background"
+    >
       <div className="w-full flex flex-col items-center gap-3 max-w-3xl">
         <motion.div
           initial={{ opacity: 0, y: 10 }}

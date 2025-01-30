@@ -95,7 +95,7 @@ const Navbar = () => {
       </div>
 
       <Button asChild className="hidden md:inline-flex">
-        <Link href="/dashboard">Create Event</Link>
+        <Link href="/login">Create Event</Link>
       </Button>
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -128,20 +128,20 @@ const Navbar = () => {
               <NavLink href="#faqs">FAQs</NavLink>
             </nav>
             <Button asChild className="mt-8 w-full">
-              <Link href="/dashboard">Create Event</Link>
+              <Link href="/login">Create Event</Link>
             </Button>
 
             <div className="mt-8">
               <Separator className="my-4" />
               <h3 className="font-medium mb-4">Quick Links</h3>
               <div className="space-y-3">
-                <NavLink href="/events" external>
+                <NavLink href="/login" external>
                   Browse Events
                 </NavLink>
-                <NavLink href="/venues" external>
+                <NavLink href="/login" external>
                   Venues
                 </NavLink>
-                <NavLink href="/dashboard" external>
+                <NavLink href="/login" external>
                   Dashboard
                 </NavLink>
               </div>
