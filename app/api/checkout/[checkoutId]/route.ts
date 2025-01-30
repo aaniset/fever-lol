@@ -1,16 +1,16 @@
 import { ObjectId } from "mongodb";
 import { db } from "@/lib/db";
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
 
 export async function GET(
   req: Request,
   { params }: { params: { checkoutId: string } }
 ) {
   try {
-    const session = await auth();
-    if (!session) {
-      return new Response("Unauthorized", { status: 403 });
-    }
+    // const session = await auth();
+    // if (!session) {
+    //   return new Response("Unauthorized", { status: 403 });
+    // }
 
     const checkoutId = params.checkoutId;
     if (!checkoutId || typeof checkoutId !== "string") {

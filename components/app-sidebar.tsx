@@ -27,108 +27,6 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 
-//   navMain: [
-//     {
-//       title: "Dashboard",
-//       url: "/dashboard",
-//       icon: LayoutDashboard,
-//       isActive: true,
-//     },
-//     {
-//       title: "Events",
-//       url: "/dashboard/events",
-//       icon: Calendar,
-//       items: [
-//         {
-//           title: "All Events",
-//           url: "/dashboard/events",
-//         },
-//         {
-//           title: "Create Event",
-//           url: "/dashboard/events/create",
-//         },
-//         {
-//           title: "Categories",
-//           url: "/dashboard/events/categories",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Orders",
-//       url: "/dashboard/orders",
-//       icon: TicketIcon,
-//       items: [
-//         {
-//           title: "All Orders",
-//           url: "/dashboard/orders",
-//         },
-//         {
-//           title: "Pending",
-//           url: "/dashboard/orders/pending",
-//         },
-//         {
-//           title: "Completed",
-//           url: "/dashboard/orders/completed",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Attendees",
-//       url: "/dashboard/attendees",
-//       icon: Store,
-//       items: [
-//         {
-//           title: "Quick Sale",
-//           url: "/dashboard/attendees/sale",
-//         },
-//         {
-//           title: "Scan Tickets",
-//           url: "/dashboard/attendees/scan",
-//         },
-//       ],
-//     },
-//     {
-//       title: "Analytics",
-//       url: "/dashboard/analytics",
-//       icon: BarChart3,
-//     },
-//     {
-//       title: "Settings",
-//       url: "/dashboard/settings",
-//       icon: Settings,
-//       items: [
-//         {
-//           title: "General",
-//           url: "/dashboard/settings/general",
-//         },
-//         {
-//           title: "Team",
-//           url: "/dashboard/settings/team",
-//         },
-//         {
-//           title: "Billing",
-//           url: "/dashboard/settings/billing",
-//         },
-//         {
-//           title: "Integrations",
-//           url: "/dashboard/settings/integrations",
-//         },
-//       ],
-//     },
-//   ],
-//   navSecondary: [
-//     {
-//       title: "Support",
-//       url: "/dashboard/support",
-//       icon: HelpCircle,
-//     },
-//     {
-//       title: "Notifications",
-//       url: "/dashboard/notifications",
-//       icon: Bell,
-//     },
-//   ],
-// };
 const navigationData = {
   navMain: [
     {
@@ -264,8 +162,16 @@ const navigationData = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      window.location.href = "/login";
+    },
+  });
 
+  if (status === "loading") {
+    return <div>Loading...</div>; // Add your loading component
+  }
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
