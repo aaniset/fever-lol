@@ -133,8 +133,8 @@ export function EventFlyer({ form }: any) {
                     accept="image/*"
                     className="hidden"
                     id="eventFlyer"
-                    onChange={handleImageUpload}
                     {...field}
+                    onChange={handleImageUpload} // Move this after {...field} to override the default onChange
                   />
 
                   <Button

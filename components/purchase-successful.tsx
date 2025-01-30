@@ -50,7 +50,7 @@ export function PurchaseSuccessful({ checkoutData }: PurchaseSuccessfulProps) {
     if (!ticket) return;
 
     try {
-      const flyerImg = new Image();
+      const flyerImg = new window.Image(); // or document.createElement('img')
       flyerImg.crossOrigin = "anonymous"; // Enable CORS for the image
       await new Promise((resolve) => {
         flyerImg.onload = resolve;
