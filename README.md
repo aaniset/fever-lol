@@ -1,75 +1,67 @@
 # 🎉 fever.lol - Open Source Event Management Platform
 
-fever.lol Banner
-
-[License: MIT
-[Next.js
-[TypeScript
-[MongoDB
-
 ## 🚀 Overview
 
-fever.lol is a modern, open-source event management and ticketing platform built with Next.js 14. Create, manage, and host events with features like QR code ticketing, attendee management, and integrated payments.
+fever.lol is a modern, open-source event management and ticketing platform built with Next.js 14. Create, manage, and host events with zero platform fees and complete control over your event experience.
 
 ### ✨ Key Features
 
 - 🎫 **Event Creation & Management**
 
-  - Custom event pages
-  - Multiple ticket types
-  - Capacity management
-  - Venue management
+  - Custom event pages with dynamic backgrounds
+  - Multiple ticket types and pricing tiers
+  - Flexible timing and capacity management
+  - Venue selection and management
 
 - 💳 **Payment Processing**
 
   - Secure payments via Razorpay
-  - Multiple currency support
-  - Refund management
+  - USD and INR support
+  - Customizable payment gateway fees
+  - Promo code system
 
 - 📱 **Attendee Experience**
 
-  - QR code tickets
-  - Email notifications
+  - QR code ticket validation
+  - Real-time check-in system
   - Mobile-responsive design
-  - Attendee dashboard
+  - Automated email notifications
 
 - 🏢 **Organizer Tools**
-  - Analytics dashboard
-  - Attendee management
-  - Discount codes
-  - Event insights
+  - Comprehensive dashboard
+  - Attendee management and tracking
+  - Dynamic promo codes
+  - Event status control
 
 ## 🛠️ Tech Stack
 
 - **Framework:** Next.js 14
 - **Language:** TypeScript
-- **Auth:** NextAuth.js
+- **Auth:** NextAuth.js with Google OAuth
 - **Database:** MongoDB
 - **Storage:** AWS S3
-- **UI Components:** Radix UI
-- **Styling:** Tailwind CSS
-- **Animations:** Framer Motion
-- **Email:** Mailgun
+- **UI:** shadcn/ui + Tailwind CSS
+- **Email:** Resend
 - **Payments:** Razorpay
-- **Charts:** Recharts
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
+- Docker and Docker Compose (for containerized deployment)
 - MongoDB database
 - AWS S3 bucket
 - Razorpay account
-- Mailgun account
+- Google OAuth credentials
 
 ### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/fever-lol.git
-cd fever-lol
+git clone https://github.com/aaniset/fever.lol.git
+cd fever.lol
 ```
 
 2. Install dependencies:
@@ -84,84 +76,80 @@ npm install
 cp .env.example .env.local
 ```
 
-4. Run the development server:
+4. Start the development server:
 
 ```bash
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see your application.
+### 🐳 Docker Deployment
 
-## 📁 Project Structure
+1. Build and run with Docker Compose:
 
+```bash
+docker-compose up -d --build
 ```
-fever-lol/
-├── app/
-│   ├── api/         # API routes
-│   ├── auth/        # Authentication
-│   ├── dashboard/   # Dashboard pages
-│   ├── events/      # Event pages
-│   └── ...
-├── components/      # Reusable components
-├── lib/            # Utility functions
-├── public/         # Static assets
-└── styles/         # Global styles
-```
+
+2. Access the application at `http://localhost:3000`
 
 ## 🔒 Environment Variables
 
 ```env
-# Authentication
-NEXTAUTH_URL=
-NEXTAUTH_SECRET=
+# Application
+NEXTAUTH_URL="http://localhost:3000"
+NODE_ENV=development
+MONGODB_URI="mongodb://localhost:27017/fever-lol"
 
-# Database
-MONGODB_URI=
+# Authentication
+AUTH_GOOGLE_ID=""
+AUTH_GOOGLE_SECRET=""
+NEXTAUTH_SECRET=""
+ENCRYPTION_KEY=""
 
 # AWS
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_REGION=
-S3_BUCKET_NAME=
+AWS_ACCESS_KEY_ID=""
+AWS_SECRET_ACCESS_KEY=""
+AWS_REGION=""
+AWS_BUCKET=""
 
-# Razorpay
-RAZORPAY_KEY_ID=
-RAZORPAY_SECRET=
+# Email
+EMAIL_SERVER_PASSWORD=""
+AUTH_RESEND_KEY=""
+EMAIL_SERVER_USER=resend
+EMAIL_SERVER_HOST=smtp.resend.com
+EMAIL_SERVER_PORT=465
+EMAIL_FROM=""
+```
 
-# Mailgun
-MAILGUN_API_KEY=
-MAILGUN_DOMAIN=
+## 📁 Project Structure
+
+```
+fever.lol/
+├── app/
+│   ├── api/         # API routes
+│   ├── auth/        # Authentication
+│   ├── dashboard/   # Dashboard pages
+│   └── events/      # Event pages
+├── components/      # UI components
+├── contexts/        # React contexts
+├── lib/            # Utility functions
+├── models/         # Data models
+└── public/         # Static assets
 ```
 
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/)
-- [Radix UI](https://www.radix-ui.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [MongoDB](https://www.mongodb.com/)
-- All our amazing contributors!
 
 ## 📧 Contact
 
 - Website: [fever.lol](https://fever.lol)
 - Email: hello@fever.lol
-- Twitter: [@feverlol](https://twitter.com/feverlol)
-- Instagram: [@fever.lol](https://instagram.com/fever.lol)
 
 ---
 
-Built with ❤️ by the fever.lol team
+Built with ❤️ by [Anudeep](https://github.com/aaniset)
