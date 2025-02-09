@@ -3,7 +3,14 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { VenueCard } from "@/components/venue-card";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Building2, Search } from "lucide-react";
 export interface Venue {
   _id: string;
   venueName: string;
@@ -83,21 +90,42 @@ export function VenuesTable() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-semibold">Venues</CardTitle>
-            <div className="flex items-center space-x-2">
-              <Input
-                placeholder="Search venues..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 w-[150px] lg:w-[250px]"
-              />
+      <Card className="border-border/40 shadow-lg hover:shadow-xl transition-all duration-200">
+        <CardHeader className="space-y-4 bg-card/50 rounded-t-lg border-b border-border/30">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="p-3 rounded-full bg-primary/10">
+                <Building2 className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <CardTitle className="text-xl font-bold text-foreground">
+                  Venues Overview
+                </CardTitle>
+                <CardDescription className="text-muted-foreground/80">
+                  {venues.length} {venues.length === 1 ? "venue" : "venues"}{" "}
+                  available
+                </CardDescription>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Input
+                  placeholder="Search venues..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-10 w-[200px] lg:w-[300px] pl-9 border-border/30 
+                  focus:border-primary focus:ring-primary/20 
+                  bg-background/50 backdrop-blur-sm
+                  placeholder:text-muted-foreground/50"
+                />
+                <Search className="h-4 w-4 absolute left-3 top-3 text-muted-foreground/50" />
+              </div>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+
+        <CardContent className="p-4 md:p-6">
           <div className="space-y-4">
             <VenueCard venues={filteredVenues} setVenues={setVenues} />
           </div>

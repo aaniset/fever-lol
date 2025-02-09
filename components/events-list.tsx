@@ -7,12 +7,13 @@ import axios from "axios";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRightIcon, CalendarIcon, MapPinIcon } from "lucide-react";
+import { format } from 'date-fns';
 
 interface Event {
   id: string;
   title: string;
   location: string;
-  date: string;
+  date: string; // Assuming this is in ISO format
   isNew?: boolean;
   isPopular?: boolean;
   eventFlyer?: string;
@@ -32,8 +33,6 @@ export function EventsList({ slug }: { slug: string }) {
   useEffect(() => {
     async function fetchData() {
       try {
-        // const baseURL =
-        //   process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
         const response = await axios.post(
           `/api/public/events`,
           { slug },
@@ -78,46 +77,14 @@ export function EventsList({ slug }: { slug: string }) {
             <div className="flex items-center justify-center gap-4">
               <Avatar className="w-10 h-10 border">
                 <AvatarImage src={organization.avatar} />
-                <AvatarFallback>{organization.name[0]}</AvatarFallback>
+                <AvatarImage src="/logo.svg" className="bg-primary" />
               </Avatar>
               <div className="font-semibold dark:text-foreground">
-                {organization.name}
+                {organization.name[0].toUpperCase() + organization.name.slice(1)}
               </div>
             </div>
           </div>
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 max-w-3xl mx-auto w-full">
-            {/* {organization.events.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className="group grid gap-4 bg-muted dark:bg-card dark:text-card-foreground rounded-lg overflow-hidden hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring transition-colors"
-              >
-                <div className="p-4 grid gap-2">
-                  <div className="flex items-center justify-between">
-                    <div className="text-lg font-semibold">
-                      {event.title}
-                      {event.isNew && (
-                        <Badge variant="secondary" className="ml-2">
-                          New
-                        </Badge>
-                      )}
-                      {event.isPopular && (
-                        <Badge className="ml-2">Popular</Badge>
-                      )}
-                    </div>
-                    <ArrowRightIcon className="w-5 h-5 text-primary dark:text-primary-foreground" />
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
-                    <MapPinIcon className="w-4 h-4" />
-                    {event.location}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
-                    <CalendarIcon className="w-4 h-4" />
-                    {event.date}
-                  </div>
-                </div>
-              </Link>
-            ))} */}
             {organization.events.map((event) => (
               <Link
                 key={event.id}
@@ -161,7 +128,8 @@ export function EventsList({ slug }: { slug: string }) {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
                       <CalendarIcon className="w-4 h-4" />
-                      {event.date}
+                      {/* Format the date in a more readable manner */}
+                      {format(new Date(event.date), 'Pp')}
                     </div>
                   </div>
                 </div>

@@ -1,7 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { PlusCircle, MoreHorizontal, Loader2 } from "lucide-react";
+import {
+  PlusCircle,
+  MoreHorizontal,
+  Loader2,
+  MapPin,
+  Edit2,
+  Trash2,
+} from "lucide-react";
 import axios from "axios";
 import { useQueryState } from "nuqs";
 
@@ -598,25 +605,15 @@ export const VenueCard = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="sticky top-0 bg-white">
-                      Name
-                    </TableHead>
-                    <TableHead className="sticky top-0 bg-white">
-                      Address
-                    </TableHead>
-                    <TableHead className="sticky top-0 bg-white">
-                      City
-                    </TableHead>
-                    <TableHead className="sticky top-0 bg-white">
-                      State
-                    </TableHead>
-                    <TableHead className="sticky top-0 bg-white">
-                      Capacity
-                    </TableHead>
-                    <TableHead className="sticky top-0 bg-white">
+                    <TableHead className="sticky top-0">Name</TableHead>
+                    <TableHead className="sticky top-0">Address</TableHead>
+                    <TableHead className="sticky top-0">City</TableHead>
+                    <TableHead className="sticky top-0">State</TableHead>
+                    <TableHead className="sticky top-0">Capacity</TableHead>
+                    <TableHead className="sticky top-0">
                       <span className="sr-only">Maps Link</span>
                     </TableHead>
-                    <TableHead className="sticky top-0 bg-white">
+                    <TableHead className="sticky top-0">
                       <span className="sr-only">Actions</span>
                     </TableHead>
                   </TableRow>
@@ -635,14 +632,13 @@ export const VenueCard = ({
                       <TableCell>{venue.state}</TableCell>
                       <TableCell>{venue.capacity.toLocaleString()}</TableCell>
                       <TableCell>
-                        <a
-                          href={venue.mapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                        <Button
+                          onClick={() => window.open(venue.mapsUrl, "_blank")}
+                          variant={"link"}
                         >
+                          <MapPin className="h-4 w-4 mr-2" />
                           View on Maps
-                        </a>
+                        </Button>
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -658,12 +654,14 @@ export const VenueCard = ({
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem onClick={() => handleEdit(venue)}>
+                              <Edit2 className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red-600"
                               onClick={() => handleDelete(venue._id)}
                             >
+                              <Trash2 className="h-4 w-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
                           </DropdownMenuContent>

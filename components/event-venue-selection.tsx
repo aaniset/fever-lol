@@ -209,7 +209,6 @@ export function EventVenueSelection({ form }: { form: any }) {
 
   const handleSelectVenue = (venue: Venue) => {
     setSelectedVenue(venue);
-    form.setValue("venueId", venue.id);
     form.setValue("venue", {
       id: venue.id,
       venueName: venue.venueName,
@@ -264,7 +263,7 @@ export function EventVenueSelection({ form }: { form: any }) {
   return (
     <FormField
       control={form.control}
-      name="venueId"
+      name="id"
       render={({}) => (
         <FormItem>
           <Card>

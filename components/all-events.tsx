@@ -14,6 +14,10 @@ import {
   ChevronsRight,
   Loader2,
   Tag,
+  PencilIcon,
+  ExternalLinkIcon,
+  Users,
+  ShoppingCart,
 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -51,7 +55,7 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 import { Badge } from "@/components/ui/badge";
-
+import { usePrice } from "@/hooks/use-price";
 interface Timing {
   date: string;
   startTime: string;
@@ -95,7 +99,7 @@ export default function EventsComponent() {
     const fetchEvents = async () => {
       try {
         const response = await axios.post("/api/events");
-        setEvents(response.data);
+        setEvents(response.data.reverse()); // Reverse the order of events
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -234,7 +238,6 @@ export default function EventsComponent() {
     </div>
   );
 }
-
 const EventCardTable = ({ events }: { events: Event[] }) => {
   const router = useRouter();
   const [pageIndex, setPageIndex] = useState(0);
@@ -244,7 +247,7 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
     pageIndex * pageSize,
     pageIndex * pageSize + pageSize
   );
-
+  const { formatPrice } = usePrice();
   const handlePageChange = (newPage: number) => {
     if (newPage >= 0 && newPage < pageCount) {
       setPageIndex(newPage);
@@ -265,10 +268,10 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
     }
   };
 
-  const formatPrice = (ticketVariants: TicketVariant[]) => {
+  const formatTicketsPrice = (ticketVariants: TicketVariant[]) => {
     if (!ticketVariants?.length) return "Price not set";
     const minPrice = Math.min(...ticketVariants.map((v) => Number(v.price)));
-    return `From $${minPrice.toFixed(2)}`;
+    return `From ${formatPrice(minPrice)}`;
   };
 
   return (
@@ -298,7 +301,7 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
       <CardContent>
         {paginatedEvents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 border border-dashed rounded-lg">
-            <h3 className="text-xl font-semibold">No Events Found</h3>
+            <h3 className="text-xl font-semibold">No events found</h3>
             <p className="text-sm text-muted-foreground mt-2 text-center">
               Create your first event to get started
             </p>
@@ -317,7 +320,7 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
             </Button>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
             {paginatedEvents.map((event) => (
               <Card key={event._id} className="flex flex-col">
                 <div className="p-4">
@@ -347,39 +350,84 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
                             </Badge>
                           )}
                         </div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(
-                                  `/dashboard/events/create-event?eventId=${event._id}`
-                                )
-                              }
-                            >
-                              Edit Event
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(`/events/${event._id}/orders`)
-                              }
-                            >
-                              View Orders
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                router.push(`/events/${event._id}/attendees`)
-                              }
-                            >
-                              View Attendees
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              router.push(
+                                `/dashboard/events/create-event?eventId=${event._id}`
+                              )
+                            }
+                            className="h-8 w-8"
+                          >
+                            <PencilIcon className="h-4 w-4" />
+                          </Button>
+
+                          {/* Open in New Tab Icon */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              window.open(`/events/${event._id}`, "_blank")
+                            }
+                            className="h-8 w-8"
+                          >
+                            <ExternalLinkIcon className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/events/create-event?eventId=${event._id}`
+                                  )
+                                }
+                              >
+                                <PencilIcon className="h-4 w-4 mr-2" />
+                                Edit Event
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(
+                                    `/dashboard/orders?eventId=${event._id}`
+                                  )
+                                }
+                              >
+                                <ShoppingCart className="h-4 w-4 mr-2" />
+                                View Orders
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  router.push(
+                                    `dashboard/attendees?eventId=${event._id}`
+                                  )
+                                }
+                              >
+                                <Users className="h-4 w-4 mr-2" />
+                                View Attendees
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  window.open(`/events/${event._id}`, "_blank")
+                                }
+                              >
+                                <ExternalLinkIcon className="h-4 w-4 mr-2" />
+                                View Event
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
 
                       <div className="space-y-1">
@@ -404,7 +452,7 @@ const EventCardTable = ({ events }: { events: Event[] }) => {
                         )}
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Tag className="h-4 w-4" />
-                          {formatPrice(event.ticketVariants)}
+                          {formatTicketsPrice(event.ticketVariants)}
                         </p>
                       </div>
                     </div>

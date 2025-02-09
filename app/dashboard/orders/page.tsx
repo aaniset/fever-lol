@@ -19,9 +19,15 @@ export default function OrdersPage() {
     axios
       .post(`/api/orders`, { eventId })
       .then((response) => {
-        const allOrders = response.data;
-
-        const cleanedOrder = z.array(OrderSchema).parse(allOrders);
+        const allOrders = response.data?.orders;
+        const transformedOrders = allOrders.map((order:any) => ({
+          ...order,
+          ticketDetails: order.ticketDetails.map((ticket:any) => ({
+            ...ticket,
+            price: Number(ticket.price), // Ensure price is a number
+          })),
+        }));
+        const cleanedOrder = z.array(OrderSchema).parse(transformedOrders);
         setOrders(cleanedOrder);
         setIsLoading(false);
       })

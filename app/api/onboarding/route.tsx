@@ -15,27 +15,35 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { firstName, lastName, email, orgName, orgUrl } = body;
+    const { firstName, lastName, email, orgName, orgUrl, currency } = body;
 
     const client = await db;
     const collection = client.db().collection("users");
 
     const existingUser = await collection.findOne({ orgUrl });
-    if (existingUser) {
+    if (existingUser && existingUser._id.toString() !== userId) {
       return new Response("Organization URL already taken", { status: 400 });
+    }
+
+    // If user already has a currency, don't update it
+    const updateFields: any = {
+      firstName,
+      lastName,
+      email,
+      orgName,
+      orgUrl,
+      updatedAt: new Date(),
+    };
+
+    // Only set currency if it's not already set in the session
+    if (!session.user.currency) {
+      updateFields.currency = currency;
     }
 
     await collection.updateOne(
       { _id: new ObjectId(userId) },
       {
-        $set: {
-          firstName,
-          lastName,
-          email,
-          orgName,
-          orgUrl,
-          updatedAt: new Date(),
-        },
+        $set: updateFields,
       },
       { upsert: true }
     );

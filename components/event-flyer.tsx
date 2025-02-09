@@ -19,6 +19,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import Image from "next/image";
+import { Input } from "./ui/input";
 
 export function EventFlyer({ form }: any) {
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -94,7 +95,7 @@ export function EventFlyer({ form }: any) {
         <FormField
           control={form.control}
           name="eventFlyer"
-          render={({ field: { ...field } }) => (
+          render={({ field: {} }) => (
             <FormItem>
               <FormControl>
                 <div className="grid gap-4">
@@ -128,12 +129,11 @@ export function EventFlyer({ form }: any) {
                     )}
                   </div>
 
-                  <input
+                  <Input
                     type="file"
                     accept="image/*"
                     className="hidden"
                     id="eventFlyer"
-                    {...field}
                     onChange={handleImageUpload} // Move this after {...field} to override the default onChange
                   />
 
@@ -149,7 +149,7 @@ export function EventFlyer({ form }: any) {
                     Select Image
                   </Button>
 
-                  {uploadProgress > 0 && (
+                  {uploadProgress > 0 && uploadProgress < 100 && (
                     <Progress value={uploadProgress} className="mt-4" />
                   )}
                 </div>

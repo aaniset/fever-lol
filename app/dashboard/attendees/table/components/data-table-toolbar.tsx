@@ -12,13 +12,14 @@ import { SelectEventFilter } from "@/app/dashboard/attendees/table/components/se
 import { useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
+import { TicketScanner } from "@/components/ticket-scanner";
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
 }
 
 interface Event {
-  id: string;
-  name: string;
+  _id: string;
+  eventName: string;
 }
 export function DataTableToolbar<TData>({
   table,
@@ -26,6 +27,7 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0;
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -43,8 +45,8 @@ export function DataTableToolbar<TData>({
   }, []);
 
   const options = events.map((event) => ({
-    label: event.name,
-    value: event.id,
+    label: event.eventName,
+    value: event._id,
     // label: "",
     // value: "  ",
   }));
@@ -81,13 +83,17 @@ export function DataTableToolbar<TData>({
         <Button
           variant="default"
           className="h-8"
-          onClick={() => {
-            /* Implement scan functionality */
-          }}
+          onClick={() => setShowScanner(true)}
         >
           <QrCode className="mr-2 h-4 w-4" />
           Scan Tickets
         </Button>
+        <DataTableViewOptions table={table} />
+
+        <TicketScanner
+          isOpen={showScanner}
+          onClose={() => setShowScanner(false)}
+        />
         <DataTableViewOptions table={table} />
       </div>
     </div>

@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-
+import { usePrice } from "@/hooks/use-price";
 interface TicketVariant {
   type: string;
   description: string;
@@ -69,6 +69,7 @@ export function EventTicketVariant({ form }: TicketVariantFormProps) {
     setIsDrawerOpen(false);
     setEditingIndex(null);
   };
+  const { currency } = usePrice();
 
   const handleAddVariant = () => {
     setEditingIndex(null);
@@ -134,7 +135,8 @@ export function EventTicketVariant({ form }: TicketVariantFormProps) {
               <div className="p-6">
                 <div className="flex items-start gap-4">
                   <Badge variant="secondary" className="px-3 py-1.5 text-lg">
-                    ${form.getValues(`ticketVariants.${index}`).price}
+                    {currency == "USD" ? "$" : "₹"}
+                    {form.getValues(`ticketVariants.${index}`).price}
                   </Badge>
                   <div className="space-y-2">
                     <h3 className="text-xl font-semibold">
@@ -241,7 +243,9 @@ export function EventTicketVariant({ form }: TicketVariantFormProps) {
                     name="price"
                     render={() => (
                       <FormItem>
-                        <FormLabel>Price ($)</FormLabel>
+                        <FormLabel>
+                          Price {currency == "USD" ? "$" : "₹"}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"

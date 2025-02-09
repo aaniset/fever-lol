@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { PlusCircle, Trash, Tag } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-
+import { usePrice } from "@/hooks/use-price";
 interface PromoCode {
   code: string;
   discountType: "flat" | "percent";
@@ -36,6 +36,7 @@ interface PromoCode {
 
 export function EventPromoCodeForm({ form }: any) {
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
+  const { currency } = usePrice();
 
   // Load initial values from form
   useEffect(() => {
@@ -167,7 +168,9 @@ export function EventPromoCodeForm({ form }: any) {
                       <FormItem>
                         <FormLabel>
                           {promoCode.discountType === "flat"
-                            ? "Discount Amount ($)"
+                            ? `Discount Amount (${
+                                currency == "USD" ? "$" : "₹"
+                              })`
                             : "Discount Percentage (%)"}
                         </FormLabel>
                         <FormControl>
@@ -179,7 +182,7 @@ export function EventPromoCodeForm({ form }: any) {
                                 ? 100
                                 : undefined
                             }
-                            value={promoCode.discountValue}
+                            value={promoCode.discountValue || ""}
                             onChange={(e) => {
                               const newCodes = [...promoCodes];
                               newCodes[index].discountValue = Number(
@@ -193,7 +196,9 @@ export function EventPromoCodeForm({ form }: any) {
                       </FormItem>
 
                       <FormItem>
-                        <FormLabel>Minimum Order Value ($)</FormLabel>
+                        <FormLabel>
+                          Minimum Order Value {currency == "USD" ? "$" : "₹"}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             type="number"

@@ -19,7 +19,20 @@ export async function GET(req: Request) {
     const collection = client.db().collection("users");
     const existingUrl = await collection.findOne({ orgUrl });
 
-    return new Response(JSON.stringify({ available: !existingUrl }), {
+    // If URL doesn't exist, it's available
+    if (!existingUrl) {
+      return new Response(JSON.stringify({ available: true }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    }
+
+    // Check if the URL belongs to the current user
+    const isOwnUrl = existingUrl._id.toString() === session.user.id;
+
+    return new Response(JSON.stringify({ available: isOwnUrl }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",

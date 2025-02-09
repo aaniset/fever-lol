@@ -1,6 +1,5 @@
 // app/api/public/events/[eventId]/route.ts
 
-import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ObjectId } from "mongodb";
 
@@ -9,10 +8,7 @@ export async function GET(
   { params }: { params: { eventId: string } }
 ) {
   try {
-    const session = await auth();
-    if (!session) {
-      return new Response("Unauthorized", { status: 403 });
-    }
+
 
     const { eventId } = params;
     if (!eventId || typeof eventId !== "string") {
@@ -63,6 +59,7 @@ export async function GET(
       ticketVariants: ticketVariants,
       venue: event.venue,
       hostEmail: host.email, // Assuming email exists in user document
+      currency: host.currency,
     };
 
     return new Response(JSON.stringify(formattedResponse), {

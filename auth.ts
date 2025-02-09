@@ -51,6 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.name = token.name;
         session.user.email = token.email || "";
         session.user.image = token.picture;
+        session.user.currency = token.currency || null; // Add this line
       }
 
       return session;
@@ -78,19 +79,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
+        currency: dbUser.currency,
         sub: dbUser._id.toString(),
       };
     },
   },
 });
 
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-    };
-  }
-}

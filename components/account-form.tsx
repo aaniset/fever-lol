@@ -29,10 +29,20 @@ import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Textarea } from "./ui/textarea";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ExternalLinkIcon } from "lucide-react";
+import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const accountFormSchema = z.object({
   firstName: z.string().optional().or(z.literal("")),
   lastName: z.string().optional().or(z.literal("")),
+  currency: z.enum(["USD", "INR"]).optional().or(z.literal("")),
   email: z
     .string()
     .email("Please enter a valid email address")
@@ -68,6 +78,12 @@ export function AccountForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialOrgUrl, setInitialOrgUrl] = useState<string>("");
+  const [domain, setDomain] = useState<string>("");
+
+  useEffect(() => {
+    const currentDomain = window.location.origin;
+    setDomain(currentDomain);
+  }, []);
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
@@ -80,6 +96,7 @@ export function AccountForm() {
       orgDescription: "",
       orgUrl: "",
       ctaUrl: "",
+      currency: "",
     },
   });
 
@@ -297,7 +314,20 @@ export function AccountForm() {
                     <p className="text-sm text-green-500">URL is available</p>
                   )}
                   <FormDescription>
-                    Preview: www.fever.lol/orgs/{field.value}
+                    <Button variant={"link"} className="flex">
+                      <Link
+                        href={`${domain}/org/${field.value}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <code className="px-1.5 py-0.5 bg-muted rounded text-foreground">
+                            {domain}/org/{field.value}
+                          </code>
+                          <ExternalLinkIcon className="h-4 w-4 ml-2" />
+                        </div>
+                      </Link>
+                    </Button>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -320,6 +350,41 @@ export function AccountForm() {
                   <FormDescription>
                     Enter a URL for visitors to follow your organization
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="currency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preferred Currency</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || ""}
+                    defaultValue={field.value}
+                    disabled={!!field.value} // Disable if currency exists
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="USD">USD - US Dollar</SelectItem>
+                      <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Choose your preferred currency for transactions
+                  </FormDescription>
+                  {/* Add warning message */}
+
+                  <FormDescription className=" text-amber-500">
+                    {field.value
+                      ? "Currency cannot be changed once saved"
+                      : "Please choose carefully. Currency cannot be changed after saving"}
+                  </FormDescription>
+
                   <FormMessage />
                 </FormItem>
               )}

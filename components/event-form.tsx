@@ -76,7 +76,7 @@ const formSchema = z.object({
   paymentGatewayFee: z.string({
     required_error: "Please select who pays the processing fee",
   }),
-  venueId: z.string({ required_error: "Select an option" }),
+
   venue: z
     .object({
       id: z.string(),
@@ -113,7 +113,6 @@ export default function EventForm() {
       promoCodes: [], // Already empty array
       status: "",
       venue: null, // Changed from object with empty values to null
-      venueId: "",
       paymentGatewayFee: "",
     },
   });
@@ -156,7 +155,6 @@ export default function EventForm() {
 
       // Set venue only if it exists
       if (data.venue?.id) {
-        form.setValue("venueId", data.venue.id);
         form.setValue("venue", {
           id: data.venue.id,
           venueName: data.venue.venueName,
@@ -212,14 +210,15 @@ export default function EventForm() {
 
   const handlePublishConfirm = async () => {
     if (!eventId) return;
-    setIsLoading(true);
+    setIsSaving(true);
     try {
+      await handleSave();
       await axios.post(`/api/events/${eventId}`, { status: "active" });
       window.location.href = "/dashboard/events";
     } catch (error) {
       console.error("Error publishing event:", error);
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
       setShowPublishDialog(false);
     }
   };

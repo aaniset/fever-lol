@@ -83,9 +83,9 @@ const Navbar = () => {
           width={40}
           height={40}
           alt="fever.lol"
-          className="h-10 w-auto"
+          className="h-10 w-auto bg-primary rounded-sm p-1"
         />
-        <h2 className="text-xl font-medium text-foreground">fever.lol</h2>
+        <h2 className="text-xl font-medium text-foreground">Fever.lol</h2>
       </Link>
 
       <div className="hidden md:flex items-center space-x-8">

@@ -15,8 +15,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 interface Event {
-  id: string;
-  name: string;
+  _id: string;
+  eventName: string;
 }
 
 interface DataTableToolbarProps<TData> {
@@ -34,7 +34,7 @@ export function DataTableToolbar<TData>({
     const fetchEvents = async () => {
       try {
         const fetchedEvents = await axios.post("/api/events/");
-        setEvents(fetchedEvents.data);
+        setEvents(fetchedEvents.data.reverse());
       } catch (error) {
         console.error("Failed to fetch events", error);
       } finally {
@@ -46,10 +46,8 @@ export function DataTableToolbar<TData>({
   }, []);
 
   const options = events.map((event) => ({
-    label: event.name,
-    value: event.id,
-    // label: "",
-    // value: "  ",
+    label: event.eventName,
+    value: event._id,
   }));
   if (loading) {
     return <>Loading</>;
@@ -81,13 +79,7 @@ export function DataTableToolbar<TData>({
             options={orderStatuses}
           />
         )}
-        {/* {table.getColumn("eventName") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("eventName")}
-            title="Order Status"
-            options={ orderStatuses}
-          />
-        )} */}
+
         <SelectEventFilter title="Select event" options={options} />
         {isFiltered && (
           <Button

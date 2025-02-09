@@ -1,28 +1,32 @@
 import { z } from "zod";
 
+// export const AttendeesInfoSchema = z.object({
+//   attendeeId: z.string(),
+//   customerName: z.string(),
+//   email: z.string().email(),
+//   ticketType: z.string(),
+//   numberOfTickets: z.number(),
+//   eventId: z.string(),
+//   orderId: z.string(),
+//   checkedIn: z.boolean(),
+//   checkedInTime: z.string().nullable(),
+//   _id: z.string(),
+// });
+
+// export type AttendeeInfo = z.infer<typeof AttendeesInfoSchema>;
 export const AttendeesInfoSchema = z.object({
-  attendeeId: z.string(),
-  customerName: z.string(),
-  email: z.string().email(),
+  _id: z.string(),
   ticketType: z.string(),
+  customerName: z.string().default(" "),
+  createdAt: z.string().datetime(),
+  email: z.string().default(""),
   numberOfTickets: z.number(),
   eventId: z.string(),
-  orderId: z.string(),
-  checkedIn: z.boolean(),
-  checkedInTime: z.string().nullable(),
-  _id: z.string(),
+  eventName: z.string().default("N/A"),
+  attendeeId: z.string(),
+  orderId: z.string().default("N/A"),
+  checkedIn: z.boolean().default(false),
+  checkedInTime: z.string().datetime().nullable().optional(),
 });
 
 export type AttendeeInfo = z.infer<typeof AttendeesInfoSchema>;
-// {
-//   "_id": "668722ba7728615009d46677",
-//   "customerName": "Doreen Dickinson",
-//   "ticketType": "VIP Access",
-//   "checkedIn": false,
-//   "checkedInTime": null,
-//   "email": "Maci35@hotmail.com",
-//   "numberOfTickets": 5,
-//   "eventId": "668722ba7728615009d46415",
-//   "attendeeId": "668722ba7728615009d46677",
-//   "orderId": "ORDJLF7C"
-// }

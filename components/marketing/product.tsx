@@ -1,15 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui/card";
-import {
-  Calendar,
-  PenTool,
-  TicketCheck,
-  UserCheck,
-  BarChart3,
-  Settings,
-  MessageSquare,
-} from "lucide-react";
+import { Calendar, Settings, MessageSquare } from "lucide-react";
 
 const Product = () => {
   return (
@@ -64,61 +55,6 @@ const Product = () => {
           Host, manage, and sell tickets for your events with powerful tools
           designed to make your life easier and your events more successful.
         </motion.p>
-      </div>
-
-      {/* Process Cards */}
-      <div className="w-full grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <Card className="p-8 flex flex-col justify-between">
-          <div className="flex items-center justify-center aspect-video rounded-lg bg-secondary mb-6">
-            <PenTool className="w-24 h-24 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-medium mb-2">Create Your Event</h3>
-            <p className="text-muted-foreground">
-              Set up your event in minutes with our intuitive dashboard. Add
-              details, upload images, and customize your event page.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="p-8 flex flex-col justify-between">
-          <div className="flex items-center justify-center aspect-video rounded-lg bg-secondary mb-6">
-            <TicketCheck className="w-24 h-24 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-medium mb-2">Ticket Management</h3>
-            <p className="text-muted-foreground">
-              Create multiple ticket types, set prices, and manage capacity.
-              Handle early bird offers and VIP packages with ease.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="p-8 bg-primary text-primary-foreground">
-          <div className="flex items-center justify-center aspect-video rounded-lg bg-primary-foreground/10 mb-6">
-            <UserCheck className="w-24 h-24 text-primary-foreground" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-medium mb-2">Attendee Management</h3>
-            <p className="text-primary-foreground/90">
-              Track registrations, communicate with attendees, and manage
-              check-ins all from one central dashboard.
-            </p>
-          </div>
-        </Card>
-
-        <Card className="p-8">
-          <div className="flex items-center justify-center aspect-video rounded-lg bg-secondary mb-6">
-            <BarChart3 className="w-24 h-24 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-2xl font-medium mb-2">Real-time Analytics</h3>
-            <p className="text-muted-foreground">
-              Get detailed insights into ticket sales, attendance rates, and
-              revenue with our comprehensive analytics tools.
-            </p>
-          </div>
-        </Card>
       </div>
 
       {/* Features Grid */}

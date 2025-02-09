@@ -7,6 +7,7 @@ import {
   subMonths,
   endOfMonth,
 } from "date-fns";
+import { ObjectId } from "mongodb";
 
 export async function GET() {
   try {
@@ -33,29 +34,31 @@ export async function GET() {
     // Calculate total revenue
     const currentMonthOrders = await ordersCollection
       .find({
-        organizerId: userId,
+        organizerId: new ObjectId(userId),
         orderStatus: { $ne: "failed" },
-        orderDate: { $gte: currentMonth },
+        orderDate: {
+          $gte: currentMonth.toISOString(),
+        },
       })
       .toArray();
 
     const lastMonthOrders = await ordersCollection
       .find({
-        organizerId: userId,
+        organizerId: new ObjectId(userId),
         orderStatus: { $ne: "failed" },
         orderDate: {
-          $gte: lastMonth,
-          $lt: currentMonth,
+          $gte: lastMonth.toISOString(),
+          $lt: currentMonth.toISOString(),
         },
       })
       .toArray();
 
     const currentMonthRevenue = currentMonthOrders.reduce(
-      (sum, order) => sum + order.totalAmountPaid,
+      (sum, order) => sum + (Number(order.totalAmountPaid) || 0),
       0
     );
     const lastMonthRevenue = lastMonthOrders.reduce(
-      (sum, order) => sum + order.totalAmountPaid,
+      (sum, order) => sum + (Number(order.totalAmountPaid) || 0),
       0
     );
     const revenuePercentageChange = lastMonthRevenue
@@ -65,29 +68,31 @@ export async function GET() {
     // Calculate sales today
     const todayOrders = await ordersCollection
       .find({
-        organizerId: userId,
+        organizerId: new ObjectId(userId),
         orderStatus: { $ne: "failed" },
-        orderDate: { $gte: today },
+        orderDate: {
+          $gte: today.toISOString(),
+        },
       })
       .toArray();
 
     const yesterdayOrders = await ordersCollection
       .find({
-        organizerId: userId,
+        organizerId: new ObjectId(userId),
         orderStatus: { $ne: "failed" },
         orderDate: {
-          $gte: yesterday,
-          $lt: today,
+          $gte: yesterday.toISOString(),
+          $lt: today.toISOString(),
         },
       })
       .toArray();
 
     const todaySales = todayOrders.reduce(
-      (sum, order) => sum + order.totalAmountPaid,
+      (sum, order) => sum + (Number(order.totalAmountPaid) || 0),
       0
     );
     const yesterdaySales = yesterdayOrders.reduce(
-      (sum, order) => sum + order.totalAmountPaid,
+      (sum, order) => sum + (Number(order.totalAmountPaid) || 0),
       0
     );
     const salesPercentageChange = yesterdaySales
@@ -99,7 +104,7 @@ export async function GET() {
       (sum, order) =>
         sum +
         order.ticketDetails.reduce(
-          (tSum: any, ticket: any) => tSum + ticket.quantity,
+          (tSum: number, ticket: any) => tSum + (Number(ticket.quantity) || 0),
           0
         ),
       0
@@ -108,7 +113,7 @@ export async function GET() {
       (sum, order) =>
         sum +
         order.ticketDetails.reduce(
-          (tSum: any, ticket: any) => tSum + ticket.quantity,
+          (tSum: number, ticket: any) => tSum + (Number(ticket.quantity) || 0),
           0
         ),
       0
@@ -119,22 +124,24 @@ export async function GET() {
 
     // Get active events
     const currentActiveEvents = await eventsCollection.countDocuments({
-      organizerId: userId,
-      date: { $gte: new Date() },
+      userId: new ObjectId(userId),
+      status: "active",
+      "timings.date": { $gte: new Date().toISOString() },
     });
 
     const lastMonthActiveEvents = await eventsCollection.countDocuments({
-      organizerId: userId,
-      date: {
-        $gte: lastMonth,
-        $lt: currentMonth,
+      userId: new ObjectId(userId),
+      status: "active",
+      "timings.date": {
+        $gte: lastMonth.toISOString(),
+        $lt: currentMonth.toISOString(),
       },
     });
 
     // Get recent sales
     const recentSales = await ordersCollection
       .find({
-        organizerId: userId,
+        organizerId: new ObjectId(userId),
         orderStatus: { $ne: "failed" },
       })
       .sort({ orderDate: -1 })
@@ -158,15 +165,18 @@ export async function GET() {
           .aggregate([
             {
               $match: {
-                organizerId: userId,
+                organizerId: new ObjectId(userId),
                 orderStatus: { $ne: "failed" },
-                orderDate: { $gte: monthStart, $lte: monthEnd },
+                orderDate: {
+                  $gte: monthStart.toISOString(),
+                  $lte: monthEnd.toISOString(),
+                },
               },
             },
             {
               $group: {
                 _id: null,
-                total: { $sum: "$totalAmountPaid" },
+                total: { $sum: { $toDouble: "$totalAmountPaid" } },
               },
             },
           ])
@@ -201,6 +211,7 @@ export async function GET() {
         ...sale,
         avatar: `/avatars/0${Math.floor(Math.random() * 5) + 1}.png`,
       })),
+      currency: session.user.currency,
     };
 
     return new Response(JSON.stringify(dashboardData), { status: 200 });

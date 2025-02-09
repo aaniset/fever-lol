@@ -9,10 +9,23 @@ declare module "next-auth/jwt" {
   }
 }
 
+// declare module "next-auth" {
+//   interface Session {
+//     user: User & {
+//       id: UserId;
+//       currency: string | null;
+//     };
+//   }
+// }
+
 declare module "next-auth" {
   interface Session {
-    user: User & {
-      id: UserId;
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      currency?: string | null | {};
     };
   }
 }

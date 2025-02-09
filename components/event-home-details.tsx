@@ -79,6 +79,7 @@ interface Event {
   ticketVariants: TicketVariant[];
   venue: Venue;
   hostEmail: string;
+  currency: string;
 }
 
 interface SelectedTicket extends TicketVariant {
@@ -239,7 +240,8 @@ export function EventHomeDetails() {
                 <CardContent className="flex items-center justify-between gap-4 p-6">
                   <div>
                     <div className="text-2xl font-bold">
-                      From ₹{lowestPrice}
+                      From {event.currency == "USD" ? "$" : "₹"}
+                      {lowestPrice}
                     </div>
                     <p className="text-muted-foreground">
                       The price you&apos;ll pay. No surprises later.
@@ -361,7 +363,7 @@ export function EventHomeDetails() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">
-                          {index + 1}st Day Start
+                          Day-{index + 1} start
                         </p>
                         <p className="text-muted-foreground">
                           Doors Open at {formatTime(timing.startTime)}
@@ -377,7 +379,7 @@ export function EventHomeDetails() {
                       </div>
                       <div className="flex-1">
                         <p className="text-sm font-medium">
-                          {index + 1}st Day End
+                          Day-{index + 1} end
                         </p>
                         <p className="text-muted-foreground">
                           Ends at {formatTime(timing.endTime)}
@@ -444,7 +446,10 @@ export function EventHomeDetails() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-xl font-bold">From ₹{lowestPrice}</div>
+              <div className="text-xl font-bold">
+                From {event.currency == "USD" ? "$" : "₹"}
+                {lowestPrice}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Including all taxes
               </p>
@@ -480,7 +485,8 @@ export function EventHomeDetails() {
                       {ticket.description}
                     </p>
                     <p className="text-muted-foreground">
-                      ₹{Number(ticket.price).toFixed(2)}
+                      {event.currency == "USD" ? "$" : "₹"}
+                      {Number(ticket.price).toFixed(2)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -512,7 +518,10 @@ export function EventHomeDetails() {
             <DrawerFooter>
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                  <p className="font-medium">Total: ₹{totalPrice.toFixed(2)}</p>
+                  <p className="font-medium">
+                    Total: {event.currency == "USD" ? "$" : "₹"}
+                    {totalPrice.toFixed(2)}
+                  </p>
                 </div>
                 <Button
                   onClick={handleCheckout}

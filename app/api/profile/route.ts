@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       orgDescription,
       orgUrl,
       ctaUrl,
+      currency,
     } = body;
 
     const client = await db;
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
           orgDescription,
           orgUrl,
           ctaUrl,
+          currency,
           updatedAt: new Date(),
         },
       },
@@ -91,6 +93,7 @@ export async function GET() {
           orgDescription: 1,
           orgUrl: 1,
           ctaUrl: 1,
+          currency: 1,
         },
       }
     );

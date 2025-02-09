@@ -50,32 +50,44 @@ export function PurchaseSuccessful({ checkoutData }: PurchaseSuccessfulProps) {
     if (!ticket) return;
 
     try {
-      const flyerImg = new window.Image(); // or document.createElement('img')
-      flyerImg.crossOrigin = "anonymous"; // Enable CORS for the image
+      const flyerImg = new window.Image();
+      flyerImg.crossOrigin = "anonymous";
       await new Promise((resolve) => {
         flyerImg.onload = resolve;
         flyerImg.src = checkoutData.event.eventFlyer;
       });
 
       const canvas = await html2canvas(ticket, {
-        useCORS: true, // Enable CORS support
-        allowTaint: true, // Allow cross-origin images
+        useCORS: true,
+        allowTaint: true,
         logging: false,
-        imageTimeout: 0, // Disable timeout for image loading
+        imageTimeout: 0,
+        backgroundColor: "#171717", // This sets the canvas background
         onclone: (clonedDoc) => {
-          // Fix image in cloned document before rendering
           const clonedImg = clonedDoc.querySelector("img");
           if (clonedImg) {
             clonedImg.src = flyerImg.src;
           }
         },
       });
+
       const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
+        putOnlyUsedFonts: true,
       });
+
+      // Set PDF background color
+      pdf.setFillColor(23, 23, 23); // RGB values for #171717
+      pdf.rect(
+        0,
+        0,
+        pdf.internal.pageSize.getWidth(),
+        pdf.internal.pageSize.getHeight(),
+        "F"
+      );
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -199,7 +211,7 @@ export function PurchaseSuccessful({ checkoutData }: PurchaseSuccessfulProps) {
                         {item.type} × {item.quantity}
                       </span>
                       <span>
-                        {item.price} {checkoutData.paymentGateway.currency}
+                        {item.price} {checkoutData.event.currency}
                       </span>
                     </div>
                   ))}

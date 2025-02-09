@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import { usePrice } from "@/hooks/use-price";
 interface RecentSalesProps {
   sales: {
     id: string;
@@ -11,6 +11,8 @@ interface RecentSalesProps {
 }
 
 export function RecentSales({ sales }: RecentSalesProps) {
+  const { formatPrice } = usePrice();
+
   return (
     <div className="space-y-8">
       {sales.map((sale) => (
@@ -28,7 +30,9 @@ export function RecentSales({ sales }: RecentSalesProps) {
             <p className="text-sm font-medium leading-none">{sale.name}</p>
             <p className="text-sm text-muted-foreground">{sale.email}</p>
           </div>
-          <div className="ml-auto font-medium">+${sale.amount.toFixed(2)}</div>
+          <div className="ml-auto font-medium">
+            +{formatPrice(sale.amount.toFixed(2))}
+          </div>
         </div>
       ))}
     </div>

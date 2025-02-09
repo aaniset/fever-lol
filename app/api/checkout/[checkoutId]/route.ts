@@ -40,7 +40,7 @@ export async function GET(
     // Fetch venue data
     const venues = client.db().collection("venues");
     const venue = await venues.findOne({
-      _id: new ObjectId(event.venueId as string),
+      _id: new ObjectId(event.venue.id as string),
     });
 
     if (!venue) {
@@ -60,6 +60,14 @@ export async function GET(
         status: 404,
       });
     }
+    const users = client.db().collection("users");
+    const user = await users.findOne({
+      _id: new ObjectId(event.userId as string), // Assuming userId is stored in the event object
+    });
+    if (!user) {
+      console.log("host not found");
+      return new Response("host not found", { status: 404 });
+    }
 
     // Construct the response with all event details
     const response = {
@@ -71,6 +79,7 @@ export async function GET(
         timings: event.timings,
         description: event.description,
         status: event.status,
+        currency: user?.currency,
         // Include any other event fields you have
       },
       venue: {
