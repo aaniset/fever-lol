@@ -1,15 +1,14 @@
-# Dockerfile
-FROM node:18-alpine AS base
+FROM oven/bun:1 as base
 
 # Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json bun.lockb ./
 
 # Install dependencies
-RUN npm ci
+RUN bun install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -55,7 +54,7 @@ ENV EMAIL_SERVER_PORT=$EMAIL_SERVER_PORT
 ENV EMAIL_FROM=$EMAIL_FROM
 
 # Build application
-RUN npm run build
+RUN bun run build
 
 # Production image, copy all files and run next
 FROM base AS runner
@@ -77,4 +76,4 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", "server.js"]
+CMD ["bun", "run", "start"]
