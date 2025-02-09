@@ -11,6 +11,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { MapPin, Loader2 } from "lucide-react";
 import { Calendar as CalendarIcon, Clock as ClockIcon } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 interface Timing {
   date: string;
@@ -23,6 +24,7 @@ interface Event {
   eventFlyer: string;
   timings: Timing[];
   _id: string;
+  currency: string;
 }
 
 interface Venue {
@@ -127,6 +129,7 @@ export function Checkout() {
         // Store the USD discount amount
         const usdDiscountAmount = data.calculation?.discountAmount || 0;
         setDiscountAmount(usdDiscountAmount);
+        toast.success("Coupon applied successfully!");
       }
     } catch (error: any) {
       const errorMessage =
@@ -176,13 +179,14 @@ export function Checkout() {
       };
 
       const response = await axios.post("/api/orders/create", orderData);
-
+      toast.success("Payment successful! Redirecting to order confirmation...");
       // Redirect to success page with order ID
       router.push(
         `/checkout/${checkoutId}/success?orderId=${response.data.orderId}`
       );
     } catch (error) {
       console.error("Order creation failed:", error);
+      toast.error("Payment successful but order creation failed");
       alert("Payment successful but order creation failed");
     }
   };
@@ -212,19 +216,22 @@ export function Checkout() {
   };
   const handleCompletePurchase = async () => {
     if (!validateForm()) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
     if (typeof window === "undefined" || !window.Razorpay) {
       console.error("Razorpay SDK not loaded");
+      toast.error("Payment system not available try again");
       return;
     }
 
     setIsLoading(true);
     try {
-      const inrAmount = total * 86; // Convert to INR only for final payment
-      const amount = Math.round(inrAmount);
-
+      const amount =
+        checkoutData.event.currency === "INR"
+          ? Math.round(total)
+          : Math.round(total * 86);
       const response = await axios.post("/api/checkout/razorpay/create-order", {
         amount,
         checkoutId,
@@ -251,8 +258,23 @@ export function Checkout() {
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
-      razorpay.open();
+      toast.promise(
+        new Promise((resolve) => {
+          const razorpay = new (window as any).Razorpay({
+            ...options,
+            handler: (response: any) => {
+              handlePaymentSuccess(response);
+              resolve(response);
+            },
+          });
+          razorpay.open();
+        }),
+        {
+          loading: "Processing payment...",
+          success: "Payment initiated successfully!",
+          error: "Payment initiation failed",
+        }
+      );
     } catch (error) {
       console.error("Payment initiation failed:", error);
       alert("Payment initiation failed");
@@ -262,12 +284,18 @@ export function Checkout() {
   };
 
   const formatPrice = (amount: number, forceINR: boolean = false) => {
+    if (checkoutData?.event.currency === "INR") {
+      return `₹${amount}`;
+    }
+
     if (forceINR) {
-      const inrAmount = amount * 86; // Convert to INR only when forced
+      const inrAmount = amount * 86;
       return `₹${inrAmount.toFixed(2)}`;
     }
+
     return `$${amount}`;
   };
+
   const { event, venue, cart } = checkoutData;
   return (
     <div className="relative w-full min-h-screen">

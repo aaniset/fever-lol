@@ -5,6 +5,7 @@ import SessionWrapper from "@/components/session-wrapper";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import Script from "next/script";
 import { CurrencyProvider } from "@/contexts/currency-context";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -137,6 +138,7 @@ export default function RootLayout({
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 strategy="lazyOnload"
               />
+              <Toaster />
             </NuqsAdapter>
           </CurrencyProvider>
         </SessionWrapper>

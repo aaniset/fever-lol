@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Globe, Loader2, Trash2 } from "lucide-react";
 import * as z from "zod";
-
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import {
@@ -187,6 +187,7 @@ export default function EventForm() {
     setIsSaving(true);
     try {
       await axios.post(`/api/events/${eventId}`, form.getValues());
+      toast.success("Event details saved successfully!");
     } catch (error) {
       console.error("Error saving event:", error);
     } finally {
@@ -200,6 +201,7 @@ export default function EventForm() {
     try {
       await axios.delete(`/api/events/${eventId}`);
       window.location.href = "/dashboard/events";
+      toast.success("Event deleted successfully!");
     } catch (error) {
       console.error("Error deleting event:", error);
     } finally {
@@ -215,6 +217,7 @@ export default function EventForm() {
       await handleSave();
       await axios.post(`/api/events/${eventId}`, { status: "active" });
       window.location.href = "/dashboard/events";
+      toast.success("Event published successfully!");
     } catch (error) {
       console.error("Error publishing event:", error);
     } finally {
